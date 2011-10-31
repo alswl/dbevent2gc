@@ -1,0 +1,11 @@
+dbevent2gc
+==========
+
+:author: alswl
+:email: alswlx@gmail.com
+:toc:
+:numbered:
+
+description
+-----------
+A application to show douban.com events to Google Calendar.
