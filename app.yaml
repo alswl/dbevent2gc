@@ -4,9 +4,6 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /
-  script: index.py
-
 - url: /guestbook
   script: guestbook.py
 
@@ -18,3 +15,7 @@ handlers:
 
 - url: /js
   static_dir: static/js
+
+- url: /(.*)
+  script: app.py
+
