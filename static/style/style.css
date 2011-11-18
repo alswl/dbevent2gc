@@ -24,22 +24,28 @@
 	border-radius: 5px;
 }
 
-a, a:visited {
-	color: #00c;
+a:link, a:visited {
+	color: #336699;
+    text-decoration: none;
 }
 
 a:hover {
 	color: #fff;
-	background: #00c;
+	background: #039;
 }
 
 /*布局样式*/
+
+body {
+	background-color: #E9F4E9
+}
 
 #body-wrapper{
 	width: 700px;
 	margin: 40px auto 0;
 	border: 2px solid #ccc;
-	padding: 10px
+	padding: 10px;
+	background-color: #fff;
 }
 
 #container {
@@ -73,6 +79,10 @@ h1 {
 }
 
 /*内容*/
+
+#container {
+	height: 300px;
+}
 
 #container article p {
 	font-size: 1.16em;
