@@ -1,7 +1,27 @@
 <%inherit file="/base.html"/>
 
+<h2>生成活动按钮</h2>
+
 <article>
-	<p>便秘了，还在憋<p>
+
+	<section>
+		<label>城市
+			<input id="city" type="text" />
+		</label>
+	</section>
+
+	<section>
+		<label>点击这里生成
+			<input type="submit" value="生成"/>
+		</label>
+	</section>
+
+	<section class="hidden">
+		<a href="http://www.google.com/calendar/render?cid=https%3A%2F%2Fwww.google.com%2Fcalendar%2Ffeeds%2Fchinaitevents%2540gmail.com%2Fpublic%2Fbasic" target="_blank">
+			<img src="/image/gc_button6_zh-CN.gif" border=0>
+		</a>
+	</section>
+
 </article>
 
 

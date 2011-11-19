@@ -84,7 +84,15 @@ h1 {
 	height: 300px;
 }
 
-#container article p {
+h2 {
+	font-size: 2em;
+}
+
+#container article {
+	padding: 10px 0;
+}
+
+#container article p, #container article section {
 	font-size: 1.16em;
 	line-height: 1.4em;
     margin: 1em 0;

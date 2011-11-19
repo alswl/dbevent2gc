@@ -7,9 +7,11 @@ import web
 from web.contrib.template import render_mako
 
 import index
+import event
 
 routes = (
-    '/', index.app
+    '/event', event.app,
+    '/', index.app,
 )
 
 web.config.debug = True
