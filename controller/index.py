@@ -9,6 +9,7 @@ from environment import render
 routes = (
     '', 'Index',
     'about', 'About',
+    'source', 'Source',
 )
 
 class Index:
@@ -19,6 +20,11 @@ class Index:
 class About:
     def GET(self):
         return render.about()
+
+
+class Source:
+    def GET(self):
+        return render.source()
 
 
 app = web.application(routes, locals())
