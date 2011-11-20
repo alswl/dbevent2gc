@@ -1,23 +1,36 @@
 <%inherit file="/base.html"/>
 
+<%block name="script">
+<script type="text/javascript">
+	$(function() {
+		$('#generate-btn').click(function() {
+			$('#generate-result').show();
+			$('#generate-result a').attr('href', '/event/location/' + $('#city').val());
+			$('#generate-result input').val('/event/location/' + $('#city').val());
+		});
+	});
+</script>
+</%block>
+
 <h2>生成活动按钮</h2>
 
 <article>
 
 	<section>
-		<label>城市
+		<label>城市名称（拼音）
 			<input id="city" type="text" />
 		</label>
 	</section>
 
 	<section>
 		<label>点击这里生成
-			<input type="submit" value="生成"/>
+			<input id="generate-btn" type="submit" value="生成"/>
 		</label>
 	</section>
 
-	<section class="hidden">
-		<a href="http://www.google.com/calendar/render?cid=https%3A%2F%2Fwww.google.com%2Fcalendar%2Ffeeds%2Fchinaitevents%2540gmail.com%2Fpublic%2Fbasic" target="_blank">
+	<section id="generate-result" class="hidden">
+		<input type="input" style="width: 420px"/></br>
+		<a href="" target="_blank">
 			<img src="/image/gc_button6_zh-CN.gif" border=0>
 		</a>
 	</section>

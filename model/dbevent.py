@@ -3,7 +3,7 @@
 
 from google.appengine.ext import db
 
-class Event(db.Model):
+class Dbevent(db.Model):
     """豆瓣同城事件数据模型"""
 
     id = db.IntegerProperty(required=True)
