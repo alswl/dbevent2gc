@@ -4,9 +4,10 @@
 <script type="text/javascript">
 	$(function() {
 		$('#generate-btn').click(function() {
+			var cityId = $('#city').val();
 			$('#generate-result').show();
-			$('#generate-result a').attr('href', '/event/location/' + $('#city').val());
-			$('#generate-result input').val('/event/location/' + $('#city').val());
+			$('#generate-result a').attr('href', '/event/location/' + cityId);
+			$('#generate-result input').val('/event/location/' + cityId);
 		});
 	});
 </script>
@@ -18,7 +19,10 @@
 
 	<section>
 		<label>城市名称（拼音）
-			<input id="city" type="text" />
+			<select id="city">
+				<option value="nanjing" >南京</option>
+				<option value="shanghai" >上海</option>
+			</select>
 		</label>
 	</section>
 
