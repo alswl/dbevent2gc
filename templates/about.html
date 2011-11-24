@@ -1,8 +1,15 @@
 <%inherit file="/base.html"/>
 
 <article>
-	<p>dbevent2gc这是一个运行在GAE上面的小工具。</p>
-	<p>它可以从豆瓣同城获取数据并同步到Google Calendar。</p>
+	<p>A application to show douban.com events to Google Calendar.</p>
+	<p>一个应用，将豆瓣同城的活动展现在Google Calendar的日历上面，
+	允许用户订阅活动而知道最近几周周边将发生活动。</p>
+	<p>这个应用运行在GAE上面，地址是 <a href="http://dbevent2gc.appspot.com/">http://dbevent2gc.appspot.com/</a></p>
+	<p>如果你无法翻墙，可以使用 <a href="http://dbevent2gc.appspot.com/event/location/beijing">http://dbevent2gc.appspot.com/event/location/beijing</a>
+	这样的地址添加到你的Google Calender里面。（把最后的beijing替换成你想要的城市）</p>
+	<p>这个app是基于Python/web.py/mako/iCalendar的，源代码地址在
+	<a href="https://github.com/alswl/dbevent2gc">https://github.com/alswl/dbevent2gc</a></p>
+	<p>dbevent2gc by <a href="http://log4d.com">alswl</a></p>
 </article>
 
 ## vim: set ft=mako foldmethod=indent:
