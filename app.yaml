@@ -1,5 +1,5 @@
 application: dbevent2gc
-version: 0.0.1a
+version: 1
 runtime: python
 api_version: 1
 

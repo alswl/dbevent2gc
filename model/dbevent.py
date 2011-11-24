@@ -25,3 +25,4 @@ class Dbevent(db.Model):
     start_time = db.DateTimeProperty()
     end_time = db.DateTimeProperty(required=True)
     where = db.StringProperty() #地点
+    geo_point = db.StringProperty() #坐标

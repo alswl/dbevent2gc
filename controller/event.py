@@ -100,8 +100,11 @@ def dbevent2event(dbevent):
     event.add('dtstart', dbevent.start_time)
     event.add('dtend', dbevent.end_time)
     event.add('STATUS', 'CONFIRMED')
-    event.add('location', dbevent.where)
-    #event.add('dtstamp', datetime(2005,4,4,0,10,0,tzinfo=UTC))
+    location = dbevent.where
+    if dbevent.geo_point != None:
+        location += u' (%s)' %dbevent.geo_point
+    event.add('location', location)
+    event.add('dtstamp', datetime.now())
     event['uid'] = dbevent.id
     return event
 
@@ -157,9 +160,6 @@ def entry2dbevent(entry):
     end_time = iso8601.parse_date(entry.find('gd:when')['endtime'])
     where = entry.find('gd:where')['valuestring']
 
-    geo_x = None #TODO 坐标
-    geo_y = None
-
     dbevent = Dbevent(
         id=id,
         title=title,
@@ -174,6 +174,11 @@ def entry2dbevent(entry):
         end_time=end_time,
         where=where,
         )
+
+    geo_point = entry.find('georss:point')
+    if geo_point != None:
+        dbevent.geo_point = geo_point.string
+
 
     return dbevent
 
