@@ -38,7 +38,8 @@ class Get:
         cal.add('X-WR-CALDESC',
                 'dbevent2gc - 豆瓣%s活动日历' \
                 ' via http://dbevent2gc.appspot.com' %location)
-        cal.add('DTSTAMP', datetime.now())
+        #cal.add('DTSTAMP', datetime.now())
+        cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
         #dbevents = Dbevent.all()
         #dbevents.filter('location_id =', location)
@@ -97,14 +98,17 @@ def dbevent2event(dbevent):
     event = Event()
     event.add('summary', dbevent.title)
     event.add('DESCRIPTION', dbevent.summary + '\n' + dbevent.alternate_link)
-    event.add('dtstart', dbevent.start_time)
-    event.add('dtend', dbevent.end_time)
+    #event.add('dtstart', dbevent.start_time)
+    event['dtstart'] = datetime.strftime(dbevent.start_time, '%Y%m%dT%H%M%SZ')
+    #event.add('dtend', dbevent.end_time)
+    event['dtend'] = datetime.strftime(dbevent.end_time, '%Y%m%dT%H%M%SZ')
     event.add('STATUS', 'CONFIRMED')
     location = dbevent.where
     if dbevent.geo_point != None:
-        location += u' (%s)' %dbevent.geo_point
+        location += u' @(%s)' %dbevent.geo_point
     event.add('location', location)
-    event.add('dtstamp', datetime.now())
+    #event.add('dtstamp', datetime.now())
+    event['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
     event['uid'] = dbevent.id
     return event
 
