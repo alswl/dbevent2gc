@@ -9,6 +9,7 @@ from google.appengine.api import users
 from icalendar import Calendar, Event, UTC
 from google.appengine.api import urlfetch
 from BeautifulSoup import BeautifulStoneSoup
+import iso8601
 
 from environment import render
 from model.dbevent import Dbevent
@@ -27,17 +28,26 @@ class Get:
         web.header('Content-Type', 'text/plain;charset=UTF-8')
 
         cal = Calendar()
-        cal.add('prodid', '-//My calendar product//mxm.dk//')
+        cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
         cal.add('version', '2.0')
         cal.add('X-WR-CALDESC','豆瓣%s活动日历' %location)
+        cal.add('X-WR-TIMEZONE', 'Asia/Shanghai')
         cal.add('CLASS', 'PUBLIC')
-        cal.add('DESCRIPTION', 'dbevent2gc - 豆瓣%s活动日历' %location)
+        cal.add('METHOD', 'PUBLISH')
+        cal.add('X-WR-CALDESC',
+                'dbevent2gc - 豆瓣%s活动日历' \
+                ' via http://dbevent2gc.appspot.com' %location)
+        cal.add('DTSTAMP', datetime.now())
 
-        dbevents = Dbevent.all()
-        dbevents.filter('location_id =', location)
-        events = [dbevent2event(e) for e in dbevents]
+        #dbevents = Dbevent.all()
+        #dbevents.filter('location_id =', location)
+        #events = [dbevent2event(e) for e in dbevents]
+
+        xml = fetchEvent(location)
+        
+        events = xml2dbevents(xml)
         for e in events:
-            cal.add_component(e)
+            cal.add_component(dbevent2event(e))
 
         return cal.as_string()
 
@@ -80,12 +90,13 @@ class Test:
 def dbevent2event(dbevent):
     """转换豆瓣数据模型到iCal数据模型"""
     event = Event()
-    event.add('summary', dbevent.summary)
-    event.add('content', dbevent.content)
-    logging.info( dbevent.start_time)
-    #event.add('dtstart', datetime(2005,4,4,8,0,0,tzinfo=UTC))
+    event.add('summary', dbevent.title)
+    event.add('DESCRIPTION', dbevent.summary + ' ' + dbevent.url)
+    event.add('dtstart', dbevent.start_time)
     event.add('dtend', dbevent.end_time)
-    event.add('dtstamp', datetime(2005,4,4,0,10,0,tzinfo=UTC))
+    event.add('STATUS', 'CONFIRMED')
+    event.add('location', dbevent.where)
+    #event.add('dtstamp', datetime(2005,4,4,0,10,0,tzinfo=UTC))
     event['uid'] = dbevent.id
     return event
 
@@ -136,9 +147,9 @@ def entry2dbevent(entry):
     location  = entry.find('db:location')
     location_id = location['id']
     location_name = location.string
-    #start_time = entry.find('gd:when').attrMap['startTime']
-    #end_time = entry.find('gd:when').attrMap['endtime']
-    #where = entry.find('gd:where').attrMap['valuestring']
+    start_time = iso8601.parse_date(entry.find('gd:when')['starttime'])
+    end_time = iso8601.parse_date(entry.find('gd:when')['endtime'])
+    where = entry.find('gd:where')['valuestring']
 
     geo_x = None #TODO 坐标
     geo_y = None
@@ -151,7 +162,8 @@ def entry2dbevent(entry):
         content=content,
         location_id=location_id,
         location_name=location_name,
-        end_time = datetime.now(),
+        start_time = start_time,
+        end_time = end_time,
         url = url,
         )
 

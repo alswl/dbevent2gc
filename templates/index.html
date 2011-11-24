@@ -5,9 +5,16 @@
 	$(function() {
 		$('#generate-btn').click(function() {
 			var cityId = $('#city').val();
+			if ($.trim(cityId) == '') {
+				alert('请输入城市名称（拼音）');
+				return false;
+			}
 			$('#generate-result').show();
 			$('#generate-result a').attr('href', '/event/location/' + cityId);
 			$('#generate-result input').val('/event/location/' + cityId);
+		});
+		$('#cityS').change(function() {
+			$('#city').val($(this).val());
 		});
 	});
 </script>
@@ -19,11 +26,15 @@
 
 	<section>
 		<label>城市名称（拼音）
-			<select id="city">
-				<option value="nanjing" >南京</option>
+			<select id="cityS">
+				<option value="" >请选择</option>
+				<option value="beijing" >北京</option>
 				<option value="shanghai" >上海</option>
+				<option value="nanjing" >南京</option>
+				<option value="" >自己输入</option>
 			</select>
 		</label>
+		<input id="city" type='text'></input>
 	</section>
 
 	<section>

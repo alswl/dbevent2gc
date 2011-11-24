@@ -8,6 +8,7 @@ sys.path.insert(0, 'lib/BeautifulSoup-3.2.0-py2.5.egg')
 sys.path.insert(0, 'lib/web.py-0.36-py2.5.egg')
 sys.path.insert(0, 'lib/icalendar-2.2-py2.5.egg')
 sys.path.insert(0, 'lib/Mako-0.5.0-py2.5.egg')
+sys.path.insert(0, 'lib/iso8601-0.1.4-py2.5.egg')
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -29,10 +30,20 @@ routes = (
     '/', index.app,
 )
 
+#定义404
+def notfound():
+    return web.internalerror(u'oh, shit, 404 notfound!')
+
+#定义500
+def internalerror():
+    return web.internalerror(u'oh, shit, 500 error!')
+
 #调试
 web.config.debug = True
 
 app = web.application(routes, locals())
+app.internalerror = internalerror
+app.notfound = notfound
 
 def main():
     application = app.wsgifunc()
