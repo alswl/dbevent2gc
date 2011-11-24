@@ -8,7 +8,10 @@ class Dbevent(db.Model):
 
     id = db.IntegerProperty(required=True)
     title = db.StringProperty(required=True)
-    category = db.StringProperty(required=True) #TODO 关联对象
+    self_link = db.StringProperty(required=True)
+    image_link = db.LinkProperty() #TODO 活动照片
+    alternate_link = db.StringProperty(required=True) #TODO 关联对象
+    category = db.StringProperty(required=True)
     summary = db.StringProperty(required=True, multiline=True)
     content = db.StringProperty(multiline=True) #TODO 是否必填
     invite_only = db.BooleanProperty() #需要邀请才能参加
@@ -22,5 +25,3 @@ class Dbevent(db.Model):
     start_time = db.DateTimeProperty()
     end_time = db.DateTimeProperty(required=True)
     where = db.StringProperty() #地点
-
-    url = db.LinkProperty(required=True)

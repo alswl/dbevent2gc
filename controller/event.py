@@ -30,10 +30,11 @@ class Get:
         cal = Calendar()
         cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
         cal.add('version', '2.0')
-        cal.add('X-WR-CALDESC','豆瓣%s活动日历' %location)
         cal.add('X-WR-TIMEZONE', 'Asia/Shanghai')
         cal.add('CLASS', 'PUBLIC')
         cal.add('METHOD', 'PUBLISH')
+        cal.add('CALSCALE', 'GREGORIAN')
+        cal.add('X-WR-CALNAME', '豆瓣%s活动日历' %location)
         cal.add('X-WR-CALDESC',
                 'dbevent2gc - 豆瓣%s活动日历' \
                 ' via http://dbevent2gc.appspot.com' %location)
@@ -43,8 +44,8 @@ class Get:
         #dbevents.filter('location_id =', location)
         #events = [dbevent2event(e) for e in dbevents]
 
-        xml = fetchEvent(location)
-        
+        xml = fetchEvent(location) #TODO try...catch
+
         events = xml2dbevents(xml)
         for e in events:
             cal.add_component(dbevent2event(e))
@@ -54,17 +55,21 @@ class Get:
 class Add:
     def GET(self):
         dbevent = Dbevent(
-            id=1,
-            title=u'活动1',
-            category=u'派对',
-            summary = u'派对',
-            location_id = u'nanjing',
-            location_name = u'南京',
-            end_time = datetime.now(),
-            url = 'http://api.douban.com/event/10082084',
+            id=id,
+            title=title,
+            self_link=self_link,
+            alternate_link=alternate_link,
+            category=category,
+            summary=summary,
+            content=content,
+            location_id=location_id,
+            location_name=location_name,
+            start_time=start_time,
+            end_time=end_time,
+            where=where,
             )
-
         dbevent.put()
+
         return 'add ok'
 
 class Test:
@@ -80,7 +85,7 @@ class Test:
         cal.add('DESCRIPTION', u'dbevent2gc - 豆瓣%s活动日历' %location)
 
         xml = fetchEvent(location)
-        
+
         events = xml2dbevents(xml)
         for e in events:
             cal.add_component(dbevent2event(e))
@@ -91,7 +96,7 @@ def dbevent2event(dbevent):
     """转换豆瓣数据模型到iCal数据模型"""
     event = Event()
     event.add('summary', dbevent.title)
-    event.add('DESCRIPTION', dbevent.summary + ' ' + dbevent.url)
+    event.add('DESCRIPTION', dbevent.summary + '\n' + dbevent.alternate_link)
     event.add('dtstart', dbevent.start_time)
     event.add('dtend', dbevent.end_time)
     event.add('STATUS', 'CONFIRMED')
@@ -120,11 +125,12 @@ def xml2dbevents(xml):
 
 def entry2dbevent(entry):
     """转换entry xml到dbevent"""
-    url = entry.id.string
-    id = int(url.split('/')[-1])
+    self_link = entry.find('link', attrs={'rel': 'self'})['href']
+    id = int(self_link.split('/')[-1])
 
     title = entry.title.string
     category = entry.category['term'].split('#')[-1]
+    alternate_link = entry.find('link', attrs={'rel': 'alternate'})['href']
     summary = entry.summary.string #.replace(r'\n', '</br>')
     content = entry.content.string
 
@@ -157,14 +163,16 @@ def entry2dbevent(entry):
     dbevent = Dbevent(
         id=id,
         title=title,
+        self_link=self_link,
+        alternate_link=alternate_link,
         category=category,
         summary=summary,
         content=content,
         location_id=location_id,
         location_name=location_name,
-        start_time = start_time,
-        end_time = end_time,
-        url = url,
+        start_time=start_time,
+        end_time=end_time,
+        where=where,
         )
 
     return dbevent

@@ -38,12 +38,16 @@ def notfound():
 def internalerror():
     return web.internalerror(u'oh, shit, 500 error!')
 
-#调试
-web.config.debug = True
-
 app = web.application(routes, locals())
-app.internalerror = internalerror
 app.notfound = notfound
+
+#调试
+DEBUG = True
+if DEBUG:
+    web.config.debug = True
+else:
+    app.internalerror = internalerror
+
 
 def main():
     application = app.wsgifunc()
