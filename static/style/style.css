@@ -1,0 +1,99 @@
+/*style.css*/
+
+/*通用样式*/
+.hidden {
+	display:none;
+}
+.clear {
+	clear:both;
+}
+.clearfix:before, .clearfix:after {
+	content:"";
+	display:table;
+}
+.clearfix:after {
+	clear:both;
+}
+.clearfix {
+	zoom:1;
+}
+.radius {
+	-moz-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+a:link, a:visited {
+	color: #336699;
+    text-decoration: none;
+}
+
+a:hover {
+	color: #fff;
+	background: #039;
+}
+
+/*布局样式*/
+
+body {
+	background-color: #E9F4E9
+}
+
+#body-wrapper{
+	width: 700px;
+	margin: 40px auto 0;
+	border: 2px solid #ccc;
+	padding: 10px;
+	background-color: #fff;
+}
+
+#container {
+	padding: 10px 0 0 0;
+	border-bottom: 2px solid #ccc;
+}
+
+#footer {
+	text-align: center;
+}
+
+/*头部*/
+
+h1 {
+	font-size: 4em;
+	text-align: center;
+}
+
+#header {
+	border-bottom: 2px solid #ccc;
+}
+
+#header hgroup {
+	text-align: center;
+}
+
+#header-nav ul li {
+	font-size: 1.6em;
+	float: left;
+	padding: 0 4px;
+}
+
+/*内容*/
+
+#container {
+	height: 300px;
+}
+
+h2 {
+	font-size: 2em;
+}
+
+#container article {
+	padding: 10px 0;
+}
+
+#container article p, #container article section {
+	font-size: 1.16em;
+	line-height: 1.4em;
+    margin: 1em 0;
+}

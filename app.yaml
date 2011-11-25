@@ -1,0 +1,21 @@
+application: dbevent2gc
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /guestbook
+  script: guestbook.py
+
+- url: /image
+  static_dir: static/image
+
+- url: /style
+  static_dir: static/style
+
+- url: /js
+  static_dir: static/js
+
+- url: /(.*)
+  script: app.py
+

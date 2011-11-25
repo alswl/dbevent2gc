@@ -9,3 +9,18 @@ dbevent2gc
 description
 -----------
 A application to show douban.com events to Google Calendar.
+
+一个应用，将豆瓣同城的活动展现在Google Calendar的日历上面，
+允许用户订阅活动而知道最近几周周边将发生活动。
+
+这个应用运行在GAE上面，地址是 http://dbevent2gc.appspot.com/
+
+如果你无法翻墙，可以使用 http://dbevent2gc.appspot.com/event/location/beijing
+这样的地址添加到你的Google Calender里面。（把最后的beijing替换成你想要的城市）
+
+这个app是基于Python/web.py/mako/iCalendar的，源代码地址在
+https://github.com/alswl/dbevent2gc
+
+dbevent2gc by http://log4d.com[alswl]
+
+// vim: set ft=asciidoc:

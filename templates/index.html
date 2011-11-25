@@ -1,0 +1,56 @@
+<%inherit file="/base.html"/>
+
+<%block name="script">
+<script type="text/javascript">
+	$(function() {
+		$('#generate-btn').click(function() {
+			var cityId = $('#city').val();
+			if ($.trim(cityId) == '') {
+				alert('请输入城市名称（拼音）');
+				return false;
+			}
+			$('#generate-result').show();
+			$('#generate-result a').attr('href', '/event/location/' + cityId);
+			$('#generate-result input').val('/event/location/' + cityId);
+		});
+		$('#cityS').change(function() {
+			$('#city').val($(this).val());
+		});
+	});
+</script>
+</%block>
+
+<h2>生成活动按钮</h2>
+
+<article>
+
+	<section>
+		<label>城市名称（拼音）
+			<select id="cityS">
+				<option value="" >请选择</option>
+				<option value="beijing" >北京</option>
+				<option value="shanghai" >上海</option>
+				<option value="nanjing" >南京</option>
+				<option value="" >自己输入</option>
+			</select>
+		</label>
+		<input id="city" type='text'></input>
+	</section>
+
+	<section>
+		<label>点击这里生成
+			<input id="generate-btn" type="submit" value="生成"/>
+		</label>
+	</section>
+
+	<section id="generate-result" class="hidden">
+		<input type="input" style="width: 420px"/></br>
+		<a href="" target="_blank">
+			<img src="/image/gc_button6_zh-CN.gif" border=0>
+		</a>
+	</section>
+
+</article>
+
+
+## vim: set ft=mako foldmethod=indent:
