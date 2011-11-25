@@ -114,7 +114,7 @@ def dbevent2event(dbevent):
 
 def fetchEvent(location):
     """从豆瓣api获取数据"""
-    url = 'http://api.douban.com/event/location/%s?apikey=%s' %(location, apikey)
+    url = 'http://api.douban.com/event/location/%s?max-results=50&apikey=%s' %(location, apikey)
     result = urlfetch.fetch(url)
     if result.status_code == 200:
         return result.content
