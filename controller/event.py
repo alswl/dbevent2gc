@@ -22,11 +22,28 @@ routes = (
 )
 
 apikey = '0a4b03a80958ff351ee10af81c0afd9f'
+event_type_map = {
+    'all': '所有类型',
+    'music': '音乐/演出',
+    'exhibition': '展览',
+    'film': '电影',
+    'salon': '讲座/沙龙',
+    'drama': '戏剧/曲艺',
+    'party': '生活/聚会',
+    'sports': '体育',
+    'travel': '旅行',
+    'commonweal': '公益',
+    'others': '其他',
+}
 
 class Get:
     def GET(self, location):
         web.header('Content-Type', 'text/plain;charset=UTF-8')
-        params = web.input()
+        params = web.input(type='all') #web.py post/get默认值
+        event_type = params.type
+        if event_type not in event_type_map: #处理意外的type参数
+            event_type = 'all'
+        event_type = event_type.strip()
 
         cal = Calendar()
         cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
@@ -35,10 +52,13 @@ class Get:
         cal.add('CLASS', 'PUBLIC')
         cal.add('METHOD', 'PUBLISH')
         cal.add('CALSCALE', 'GREGORIAN')
-        cal.add('X-WR-CALNAME', '豆瓣%s活动日历' %location)
+        cal.add('X-WR-CALNAME', '豆瓣%s - %s活动' \
+                %(location, event_type_map[event_type]))
         cal.add('X-WR-CALDESC',
-                'dbevent2gc - 豆瓣%s活动日历' \
-                ' via http://dbevent2gc.appspot.com' %location)
+                'dbevent2gc - 豆瓣%s - %s活动 \n' \
+                'via http://dbevent2gc.appspot.com\n' \
+                'by alswl(http://log4d.com)' \
+                %(location, event_type_map[event_type]))
         #cal.add('DTSTAMP', datetime.now())
         cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
@@ -46,7 +66,7 @@ class Get:
         #dbevents.filter('location_id =', location)
         #events = [dbevent2event(e) for e in dbevents]
 
-        xml = fetchEvent(location, event_type=params.type) #TODO try...catch
+        xml = fetchEvent(location, event_type=event_type) #TODO try...catch
 
         events = xml2dbevents(xml)
         for e in events:

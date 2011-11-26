@@ -15,6 +15,8 @@
 				var type = $('#type').val();
 				var salt = new Date().format('yyyymmddHHMMss');
 				var url = window.location + 'event/location/' + cityId + '?type=' + type + '&salt=' + salt;
+				var googleUrl = 'http://www.google.com/calendar/render?cid=';
+				url = googleUrl + escape(url);
 				$('#generate-result').show();
 				$('#generate-result a').attr('href', url);
 				$('#generate-result input').val(url);
@@ -68,8 +70,7 @@
 		</label>
 	</section>
 
-	<section id="generate-result" class="hidden">
-		<input type="input" style="width: 420px"/></br>
+	<section id="generate-result" class="hidden center">
 		<a href="" target="_blank">
 			<img src="/image/gc_button6_zh-CN.gif" border=0>
 		</a>

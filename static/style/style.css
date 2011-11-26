@@ -23,6 +23,9 @@
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 }
+.center {
+	text-align: center;
+}
 
 a:link, a:visited {
 	color: #336699;
