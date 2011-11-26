@@ -4,9 +4,6 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /guestbook
-  script: guestbook.py
-
 - url: /image
   static_dir: static/image
 
@@ -15,6 +12,10 @@ handlers:
 
 - url: /js
   static_dir: static/js
+
+- url: /(.*\.(gif|png|jpg|ico|txt))
+  static_files: static/\1
+  upload: static/(.*\.(gif|png|jpg))
 
 - url: /(.*)
   script: app.py
