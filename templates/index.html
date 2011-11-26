@@ -1,45 +1,70 @@
 <%inherit file="/base.html"/>
 
 <%block name="script">
+<script type="text/javascript" src="/js/date.format.js"></script>
 <script type="text/javascript">
 	$(function() {
-		$('#generate-btn').click(function() {
+
+		$('#city, #type').change(function() {
 			var cityId = $('#city').val();
 			if ($.trim(cityId) == '') {
-				alert('请输入城市名称（拼音）');
-				return false;
+				$('#generate-result').hide();
+				$('#generate-result a').attr('href', '');
+				$('#generate-result input').val('');
+			} else {
+				var type = $('#type').val();
+				var salt = new Date().format('yyyymmddHHMMss');
+				var url = window.location + 'event/location/' + cityId + '?type=' + type + '&salt=' + salt;
+				$('#generate-result').show();
+				$('#generate-result a').attr('href', url);
+				$('#generate-result input').val(url);
 			}
-			$('#generate-result').show();
-			$('#generate-result a').attr('href', '/event/location/' + cityId);
-			$('#generate-result input').val('/event/location/' + cityId);
 		});
+
+		$('#city').change(function() {
+			$('#cityS').val($(this).val());
+		});
+
 		$('#cityS').change(function() {
-			$('#city').val($(this).val());
+			$('#city').val($(this).val()).change();
 		});
+
 	});
 </script>
 </%block>
 
-<h2>生成活动按钮</h2>
+<h2>选择需要生活日历的城市和活动类型</h2>
 
 <article>
 
 	<section>
 		<label>城市名称（拼音）
 			<select id="cityS">
-				<option value="" >请选择</option>
+				<option value="" >请选择或自己输入</option>
 				<option value="beijing" >北京</option>
 				<option value="shanghai" >上海</option>
 				<option value="nanjing" >南京</option>
-				<option value="" >自己输入</option>
 			</select>
 		</label>
 		<input id="city" type='text'></input>
+		更多城市拼音查看<a href="http://www.douban.com/location/world/?others=true">这里</a>
 	</section>
 
 	<section>
-		<label>点击这里生成
-			<input id="generate-btn" type="submit" value="生成"/>
+		<label>活动类型
+			<select id="type">
+				<option value="all" >所有类型</option>
+				<option value="music" >音乐/演出</option>
+				<option value="exhibition" >展览</option>
+				<option value="film" >电影</option>
+				<option value="salon" >讲座/沙龙</option>
+				<option value="drama" >戏剧/曲艺</option>
+				<option value="party" >生活/聚会</option>
+				<option value="sports" >体育</option>
+				<option value="travel" >旅行</option>
+				<option value="commonweal" >公益</option>
+				<option value="others" >其他</option>
+			</select>
 		</label>
 	</section>
 

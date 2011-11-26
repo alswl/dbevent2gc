@@ -26,6 +26,7 @@ apikey = '0a4b03a80958ff351ee10af81c0afd9f'
 class Get:
     def GET(self, location):
         web.header('Content-Type', 'text/plain;charset=UTF-8')
+        params = web.input()
 
         cal = Calendar()
         cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
@@ -45,7 +46,7 @@ class Get:
         #dbevents.filter('location_id =', location)
         #events = [dbevent2event(e) for e in dbevents]
 
-        xml = fetchEvent(location) #TODO try...catch
+        xml = fetchEvent(location, event_type=params.type) #TODO try...catch
 
         events = xml2dbevents(xml)
         for e in events:
