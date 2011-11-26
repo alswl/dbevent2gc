@@ -118,7 +118,12 @@ def dbevent2event(dbevent):
     """转换豆瓣数据模型到iCal数据模型"""
     event = Event()
     event.add('summary', dbevent.title)
-    event.add('DESCRIPTION', dbevent.summary + '\n' + dbevent.alternate_link)
+    desc = dbevent.summary
+    if isinstance(dbevent.participants, int):
+        desc += '\n\n' + u'参与人数 %d, 感兴趣人数 %d' \
+                %(dbevent.participants, dbevent.wishers)
+    desc += '\n\n' + dbevent.alternate_link
+    event.add('DESCRIPTION', desc)
     #event.add('dtstart', dbevent.start_time)
     event['dtstart'] = datetime.strftime(dbevent.start_time, '%Y%m%dT%H%M%SZ')
     #event.add('dtend', dbevent.end_time)
@@ -198,6 +203,8 @@ def entry2dbevent(entry):
         category=category,
         summary=summary,
         content=content,
+        participants=participants,
+        wishers=wishers,
         location_id=location_id,
         location_name=location_name,
         start_time=start_time,
