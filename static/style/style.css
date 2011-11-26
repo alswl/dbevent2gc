@@ -84,7 +84,7 @@ h1 {
 /*内容*/
 
 #container {
-	height: 300px;
+	min-height: 300px;
 }
 
 h2 {
@@ -92,11 +92,15 @@ h2 {
 }
 
 #container article {
+	font-size: 1.16em;
 	padding: 10px 0;
 }
 
-#container article p, #container article section {
-	font-size: 1.16em;
+#container article p, #container article section, #container article ul {
 	line-height: 1.4em;
     margin: 1em 0;
+}
+#container article li {
+	list-style: disc outside none;
+	margin-left: 36px;
 }
