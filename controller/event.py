@@ -62,17 +62,22 @@ class Get:
         cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
         dbevents = Dbevent.all() #从数据库获取数据
-        dbevents.filter('location_id =', location)
-        if category != 'all':
+        dbevents.filter('location_id =', location) #地点
+        dbevents.order("-id")
+        if category != 'all': #类别
             dbevents.filter('category =', 'event.' + category)
 
+        logging.info(dbevents.count())
         if dbevents.count() == 0: #如果数据库没有值，则去实时查询
             xml = fetchEvent(location, category=category)
             dbevents_new = xml2dbevents(xml)
             db.put(dbevents_new)
+            result = dbevents_new
+        else:
+            result = dbevents.fetch(50)
 
         #豆瓣活动转换到iCalendar Event
-        events = [dbevent2event(e) for e in dbevents]
+        events = [dbevent2event(e) for e in result]
         for e in events:
             cal.add_component(e)
 
@@ -82,11 +87,8 @@ class Test:
     def GET(self):
         location = 'nanjing'
         category = 'all'
-        xml = fetchEvent(location, category=category, max=10)
+        xml = fetchEvent(location, category=category, start=50, max=50)
         dbevents_new = xml2dbevents(xml)
-
-        logging.info('len(dbevents_new)')
-        logging.info(len(dbevents_new))
 
         db.put(dbevents_new)
 
@@ -116,13 +118,14 @@ def dbevent2event(dbevent):
     event['uid'] = dbevent.id
     return event
 
-def fetchEvent(location, category='all', max=50):
+def fetchEvent(location, category='all', max=50, start=0):
     """从豆瓣api获取数据"""
     url = 'http://api.douban.com/event/location/%s?' \
-            'type=%s&max-results=%d&apikey=%s' %(location,
-                                                category,
-                                                max,
-                                                apikey)
+            'type=%s&start-index=%d&max-results=%d&apikey=%s' %(location,
+                                                                category,
+                                                                start,
+                                                                max,
+                                                                apikey)
     logging.info('fetch events from douban url: %s'%url)
     result = urlfetch.fetch(url)
     if result.status_code == 200:
@@ -145,7 +148,6 @@ def entry2dbevent(entry):
     id = int(self_link.split('/')[-1])
 
     title = unicode(entry.title.string)
-    #logging.info(type(title))
     category = entry.category['term'].split('#')[-1]
     alternate_link = entry.find('link', attrs={'rel': 'alternate'})['href']
     summary = unicode(entry.summary.string) #.replace(r'\n', '</br>')
@@ -170,7 +172,6 @@ def entry2dbevent(entry):
     location  = entry.find('db:location')
     location_id = location['id']
     location_name = unicode(location.string)
-    #logging.info(type(location_name))
     start_time = iso8601.parse_date(entry.find('gd:when')['starttime'])
     end_time = iso8601.parse_date(entry.find('gd:when')['endtime'])
     where = entry.find('gd:where')['valuestring']

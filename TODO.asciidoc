@@ -23,5 +23,7 @@
 * ☑ 添加直达按钮到GC
 * 保存Category
 * 保存Location
+* 页面CSS优化
+* 检测html5支持
 
 // vim: set ft=asciidoc:
