@@ -23,35 +23,30 @@ routes = (
 
 apikey = '0a4b03a80958ff351ee10af81c0afd9f'
 category_map = {
-    'all': '所有类型',
-    'music': '音乐/演出',
-    'exhibition': '展览',
-    'film': '电影',
-    'salon': '讲座/沙龙',
-    'drama': '戏剧/曲艺',
-    'party': '生活/聚会',
-    'sports': '体育',
-    'travel': '旅行',
-    'commonweal': '公益',
-    'others': '其他',
+    'all': u'所有类型',
+    'music': u'音乐/演出',
+    'exhibition': u'展览',
+    'film': u'电影',
+    'salon': u'讲座/沙龙',
+    'drama': u'戏剧/曲艺',
+    'party': u'生活/聚会',
+    'sports': u'体育',
+    'travel': u'旅行',
+    'commonweal': u'公益',
+    'others': u'其他',
 }
 
 class Get:
     def GET(self, location):
         web.header('Content-Type', 'text/plain;charset=UTF-8')
-        params = web.input(type='all') #web.py post/get默认值
+        params = web.input(type='all', length=None) #web.py post/get默认值
         category = params.type #活动类型
         length = params.length #活动长度
         if category not in category_map: #处理意外的type参数
             category = 'all'
         category = category.strip()
-        if not length.isdigit() or length < 0:
-            length = None
-        else:
+        if length != None and length.isdigit() and length > 0:
             length = int(length)
-
-        logging.info(length)
-        logging.info(type(length))
 
         cal = Calendar()
         cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
@@ -60,38 +55,62 @@ class Get:
         cal.add('CLASS', 'PUBLIC')
         cal.add('METHOD', 'PUBLISH')
         cal.add('CALSCALE', 'GREGORIAN')
-        cal.add('X-WR-CALNAME', '豆瓣%s - %s活动' \
+        cal.add('X-WR-CALNAME', u'豆瓣%s - %s活动' \
                 %(location, category_map[category]))
-        cal.add('X-WR-CALDESC',
-                'dbevent2gc - 豆瓣%s - %s活动 \n' \
-                'via https://github.com/alswl/dbevent2gc\n' \
-                'by alswl(http://log4d.com)' \
-                %(location, category_map[category]))
+        desc = u'dbevent2gc - 豆瓣%s - %s活动 \n' \
+                %(location, category_map[category])
+        if length != None:
+            desc += u'活动时间长度：%d小时 以内' %length
+        desc += u'via https://github.com/alswl/dbevent2gc\n' \
+                u'by alswl(http://log4d.com)'
+        cal.add('X-WR-CALDESC', desc)
         cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
-        dbevents = Dbevent.all() #从数据库获取数据
-        dbevents.filter('location_id =', location) #地点
-        if category != 'all': #类别
-            dbevents.filter('category =', 'event.' + category)
-        if length != None: #活动长度
-            dbevents.filter('length <=', length)
-        #dbevents.order("-id")
+        query = getDbeventsQuery(location, category, length)
 
-        logging.info(dbevents.count())
-        if dbevents.count() == 0: #如果数据库没有值，则去实时查询
+        if query.count() == 0: #如果数据库没有值，则去实时查询
             xml = fetchEvent(location, category=category)
             dbevents_new = xml2dbevents(xml)
             db.put(dbevents_new)
-            result = dbevents_new
-        else:
-            result = dbevents.fetch(50)
+            query = getDbeventsQuery(location, category, length)
 
+        result = query.fetch(50)
         #豆瓣活动转换到iCalendar Event
         events = [dbevent2event(e) for e in result]
         for e in events:
             cal.add_component(e)
 
         return cal.as_string()
+
+def getDbeventsQuery(location_id, category, length, start=0, count=50):
+    """从数据库获取dbevents的query"""
+    def getDbeventsQueryFromDb(location_id, category, length, start, count):
+        """内函数"""
+        dbevents = Dbevent.all() #从数据库获取数据
+        dbevents.filter('location_id =', location_id) #地点
+        if category != 'all': #类别
+            dbevents.filter('category =', 'event.' + category)
+        if length > 0: #活动长度
+            dbevents.filter('length <=', length)
+        #dbevents.order("-id")
+        return dbevents
+
+    dbevents = getDbeventsQueryFromDb(location_id,
+                                      category,
+                                      length,
+                                      start,
+                                      count)
+
+    if dbevents.count() == 0: #如果数据库没有值，则去实时查询
+        xml = fetchEvent(location_id, category=category)
+        dbevents_new = xml2dbevents(xml)
+        db.put(dbevents_new)
+
+    return getDbeventsQueryFromDb(location_id,
+                                  category,
+                                  length,
+                                  start,
+                                  count)
 
 class Test:
     def GET(self):

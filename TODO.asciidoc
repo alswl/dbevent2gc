@@ -19,12 +19,13 @@
 次要功能
 ----
 
-* 前台页面使用jSelect级联
 * ☑ 添加直达按钮到GC
+* 增加日历说明for活动间隔
+* 修改timestamp
 * 保存Category
 * 保存Location
 * 页面CSS优化
 * 检测html5支持
-* 修改timestamp
+* 前台页面使用jSelect级联
 
 // vim: set ft=asciidoc:
