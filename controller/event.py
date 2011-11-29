@@ -40,10 +40,18 @@ class Get:
     def GET(self, location):
         web.header('Content-Type', 'text/plain;charset=UTF-8')
         params = web.input(type='all') #web.py post/get默认值
-        category = params.type
+        category = params.type #活动类型
+        length = params.length #活动长度
         if category not in category_map: #处理意外的type参数
             category = 'all'
         category = category.strip()
+        if not length.isdigit() or length < 0:
+            length = None
+        else:
+            length = int(length)
+
+        logging.info(length)
+        logging.info(type(length))
 
         cal = Calendar()
         cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
@@ -56,16 +64,18 @@ class Get:
                 %(location, category_map[category]))
         cal.add('X-WR-CALDESC',
                 'dbevent2gc - 豆瓣%s - %s活动 \n' \
-                'via http://dbevent2gc.appspot.com\n' \
+                'via https://github.com/alswl/dbevent2gc\n' \
                 'by alswl(http://log4d.com)' \
                 %(location, category_map[category]))
         cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
         dbevents = Dbevent.all() #从数据库获取数据
         dbevents.filter('location_id =', location) #地点
-        dbevents.order("-id")
         if category != 'all': #类别
             dbevents.filter('category =', 'event.' + category)
+        if length != None: #活动长度
+            dbevents.filter('length <=', length)
+        #dbevents.order("-id")
 
         logging.info(dbevents.count())
         if dbevents.count() == 0: #如果数据库没有值，则去实时查询
@@ -176,6 +186,9 @@ def entry2dbevent(entry):
     end_time = iso8601.parse_date(entry.find('gd:when')['endtime'])
     where = entry.find('gd:where')['valuestring']
 
+    length = end_time-start_time
+    length = length.days * 24 + length.seconds / 60 /60
+
     dbevent = Dbevent(
         key_name=str(id),
         id=id,
@@ -191,6 +204,7 @@ def entry2dbevent(entry):
         location_name=location_name,
         start_time=start_time,
         end_time=end_time,
+        length=length,
         where=where,
         )
 
