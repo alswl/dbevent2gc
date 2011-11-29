@@ -14,11 +14,10 @@ A application to sync douban.com events to Google Calendar.
 dbevent2gc是一个GAE应用，它将豆瓣同城的活动同步到Google Calendar的日历，
 允许用户订阅活动而知道最近几周周边将发生活动。
 
-image:https://github.com/alswl/dbevent2gc/raw/master/static/image/dbevent2gc.png["dbevent2gc" style="border:solid 1px"]
+image:https://github.com/alswl/dbevent2gc/raw/master/static/image/dbevent2gc.png[dbevent2gc]
 
 dbevent2gc是基于Python/web.py/mako/iCalendar的，源代码地址在
 https://github.com/alswl/dbevent2gc
-
 
 使用方法
 ----
@@ -27,7 +26,7 @@ https://github.com/alswl/dbevent2gc
 登录这个地址可以选择需要订阅的城市和活动类型，然后会生成一个按钮，
 点击这个按钮可以直接将选择的活动订阅到Google日历。
 
-如果你无法翻墙，可以使用 http://dbevent2gc.appspot.com/event/location/beijing?type=all&salt=20111126
+如果你无法翻墙，可以使用 http://dbevent2gc.appspot.com/event/location/beijing?type=all&length=12&salt=20111126
 这样的地址添加到你的Google Calender里面。
 
 接受的参数：
@@ -36,6 +35,8 @@ https://github.com/alswl/dbevent2gc
 更多城市拼音查看http://www.douban.com/location/world/?others=true[这里]
 * 活动类型 type，支持all, commonweal, drama, exhibition, film, music, others,
 party, salon, sports, travel. 可选参数,默认为all
+* 活动时间长度 length，计时单位是小时，该选项允许用户过滤合适时间长度的活动。
+可选参数，默认是不过滤。
 * 随机数salt（你可以选当前时间作为随机数，这是为了防止Google日历获取旧有数据，
 如果你愿意，也可以将自己的用户名作为salt值。再Geek一点，你可以使用一个uid）
 
@@ -45,6 +46,18 @@ party, salon, sports, travel. 可选参数,默认为all
 如果想自己搭建GAE应用，也很简单，直接使用
 `git://github.com/alswl/dbevent2gc.git` 就可以获取最新代码，
 然后嘛去GAE注册一个应用，上传即可运行了。
+
+CHANGE LOG
+----------
+
+* 2011-10-30 初始化项目
+* 2011-11-19 静态数据解析
+* 2011-11-21 使用iCalendar包解析
+* 2011-11-24 使用动态数据
+* 2011-11-25 支持过滤活动类型
+* 2011-11-26 支持直接添加到Google Calendar
+* 2011-11-29 使用GAE数据库存储数据
+* 2011-11-29 支持过滤活动时间长度
 
 dbevent2gc by http://log4d.com[alswl]
 
