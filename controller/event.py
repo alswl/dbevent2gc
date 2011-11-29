@@ -8,20 +8,18 @@ import web
 from google.appengine.api import users
 from google.appengine.ext import db
 from icalendar import Calendar, Event, UTC
-from google.appengine.api import urlfetch
-from BeautifulSoup import BeautifulStoneSoup
-import iso8601
 
 from environment import render
-from model.dbevent import Dbevent
-#from model.calendar import Calendar
+from model.dbevent import Dbevent, dbevent2event, xml2dbevents
+from controller.sync import Sync
+from util.doubanapi import fetchEvent
 
 routes = (
     '/test', 'Test',
+    '/sync', 'Sync',
     '/location/(.+)', 'Get',
 )
 
-apikey = '0a4b03a80958ff351ee10af81c0afd9f'
 category_map = {
     'all': u'所有类型',
     'music': u'音乐/演出',
@@ -83,7 +81,9 @@ class Get:
         return cal.as_string()
 
 def getDbeventsQuery(location_id, category, length, start=0, count=50):
-    """从数据库获取dbevents的query"""
+    """
+    从数据库获取dbevents的query，如果取不到就去豆瓣同步
+    """
     def getDbeventsQueryFromDb(location_id, category, length, start, count):
         """内函数"""
         dbevents = Dbevent.all() #从数据库获取数据
@@ -123,116 +123,7 @@ class Test:
 
         return 'ok'
 
-def dbevent2event(dbevent):
-    """转换豆瓣数据模型到iCal数据模型"""
-    event = Event()
-    event.add('summary', dbevent.title)
-    desc = dbevent.summary
-    if isinstance(dbevent.participants, int):
-        desc += '\n\n' + u'参与人数 %d, 感兴趣人数 %d' \
-                %(dbevent.participants, dbevent.wishers)
-    desc += '\n\n' + dbevent.alternate_link
-    event.add('DESCRIPTION', desc)
-    #event.add('dtstart', dbevent.start_time)
-    event['dtstart'] = datetime.strftime(dbevent.start_time, '%Y%m%dT%H%M%SZ')
-    #event.add('dtend', dbevent.end_time)
-    event['dtend'] = datetime.strftime(dbevent.end_time, '%Y%m%dT%H%M%SZ')
-    event.add('STATUS', 'CONFIRMED')
-    location = dbevent.where
-    if dbevent.geo_point != None:
-        location += u' @(%s)' %dbevent.geo_point
-    event.add('location', location)
-    #event.add('dtstamp', datetime.now())
-    event['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
-    event['uid'] = dbevent.id
-    return event
-
-def fetchEvent(location, category='all', max=50, start=0):
-    """从豆瓣api获取数据"""
-    url = 'http://api.douban.com/event/location/%s?' \
-            'type=%s&start-index=%d&max-results=%d&apikey=%s' %(location,
-                                                                category,
-                                                                start,
-                                                                max,
-                                                                apikey)
-    logging.info('fetch events from douban url: %s'%url)
-    result = urlfetch.fetch(url)
-    if result.status_code == 200:
-        return result.content
-    else:
-        raise Exception('get events from douban.com failed')
-
-def xml2dbevents(xml):
-    """使用beautifulsoup转换html到Dbevent"""
-    soup = BeautifulStoneSoup(xml)
-    entrys = soup.findAll('entry')
-    events = [] #FIXME 名字修改
-    for entry in entrys:
-        events.append(entry2dbevent(entry))
-    return events
-
-def entry2dbevent(entry):
-    """转换entry xml到dbevent"""
-    self_link = entry.find('link', attrs={'rel': 'self'})['href']
-    id = int(self_link.split('/')[-1])
-
-    title = unicode(entry.title.string)
-    category = entry.category['term'].split('#')[-1]
-    alternate_link = entry.find('link', attrs={'rel': 'alternate'})['href']
-    summary = unicode(entry.summary.string) #.replace(r'\n', '</br>')
-    content = unicode(entry.content.string)
-
-    if entry.find('db:attribute',
-                  attrs={'name':'invite_only'}).string == 'yes':
-        invite_only = True
-    else:
-        invite_only = False
-    if entry.find('db:attribute',
-                  attrs={'name':'invite_only'}).string == 'yes':
-        can_invite = True
-    else:
-        can_invite = False
-    participants = int(entry.find('db:attribute',
-                                  attrs={'name':'participants'}).string)
-    wishers  = int(entry.find('db:attribute',
-                                  attrs={'name':'wishers'}).string)
-    album  = int(entry.find('db:attribute',
-                                  attrs={'name':'album'}).string)
-    location  = entry.find('db:location')
-    location_id = location['id']
-    location_name = unicode(location.string)
-    start_time = iso8601.parse_date(entry.find('gd:when')['starttime'])
-    end_time = iso8601.parse_date(entry.find('gd:when')['endtime'])
-    where = entry.find('gd:where')['valuestring']
-
-    length = end_time-start_time
-    length = length.days * 24 + length.seconds / 60 /60
-
-    dbevent = Dbevent(
-        key_name=str(id),
-        id=id,
-        title=title,
-        self_link=self_link,
-        alternate_link=alternate_link,
-        category=category,
-        summary=summary,
-        content=content,
-        participants=participants,
-        wishers=wishers,
-        location_id=location_id,
-        location_name=location_name,
-        start_time=start_time,
-        end_time=end_time,
-        length=length,
-        where=where,
-        )
-
-    geo_point = entry.find('georss:point')
-    if geo_point != None:
-        dbevent.geo_point = unicode(geo_point.string)
-
-    return dbevent
-
 
 app = web.application(routes, locals())
 
+# vim: set ft=python:
