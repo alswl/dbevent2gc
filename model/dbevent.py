@@ -12,8 +12,8 @@ class Dbevent(db.Model):
     image_link = db.LinkProperty() #TODO 活动照片
     alternate_link = db.StringProperty(required=True) #TODO 关联对象
     category = db.StringProperty(required=True)
-    summary = db.StringProperty(required=True, multiline=True)
-    content = db.StringProperty(multiline=True) #TODO 是否必填
+    summary = db.TextProperty(required=True)
+    content = db.TextProperty() #TODO 是否必填
     invite_only = db.BooleanProperty() #需要邀请才能参加
     can_invite = db.BooleanProperty() #允许参加者邀请其友邻来参加
     participants = db.IntegerProperty() #参与人数
