@@ -60,15 +60,17 @@ class Get:
         desc = u'dbevent2gc - 豆瓣%s - %s活动 \n' \
                 %(location, category_map[category])
         if length != None:
-            desc += u'活动时间长度：%d小时 以内' %length
+            desc += u'活动时间长度：%d小时以内' %length
         desc += u'via https://github.com/alswl/dbevent2gc\n' \
                 u'by alswl(http://log4d.com)'
         cal.add('X-WR-CALDESC', desc)
         cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
+        logging.info('*********************')
         query = getDbeventsQuery(location, category, length)
 
-        result = query.fetch(50)
+        #result = query.fetch()
+        result = sorted(query, key=lambda i: -i.id) #FIXME 使用内存排序
         #豆瓣活动转换到iCalendar Event
         events = [dbevent2event(e) for e in result]
         for e in events:
@@ -76,7 +78,7 @@ class Get:
 
         return cal.as_string()
 
-def getDbeventsQuery(location_id, category, length, start=0, count=50):
+def getDbeventsQuery(location_id, category, length=None, start=0, count=50):
     """
     从数据库获取dbevents的query，如果取不到就去豆瓣同步
     """
@@ -86,9 +88,9 @@ def getDbeventsQuery(location_id, category, length, start=0, count=50):
         dbevents.filter('location_id =', location_id) #地点
         if category != 'all': #类别
             dbevents.filter('category =', 'event.' + category)
-        if length > 0: #活动长度
+        if isinstance(length, int) and length > 0: #活动长度
             dbevents.filter('length <=', length)
-        dbevents.order("-id")
+        #dbevents.order("-length") #FIXME 使用排序
         return dbevents
 
     dbevents = getDbeventsQueryFromDb(location_id,

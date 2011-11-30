@@ -16,20 +16,24 @@
 * ☑ 使用队列更新数据
 * ☑ 加入过滤功能：类型
 * ☑ 过滤功能：日期间隔
-* 使用Memcache
+* 使用Memcache缓存iCalendar
 * 使用事务保持SyncQueue一致性
+* 解决活动查询时候排序问题
+* 不使用全局同步，只同步活动结束日期在当前时间之后的活动
 
 次要功能
 ----
 
 * ☑ 添加直达按钮到GC
-* 加入手工同步SyncQueue功能
+* ☑ 加入手工同步SyncQueue功能
 * 增加日历说明for活动间隔
 * 修改timestamp
 * 保存Category
 * 保存Location
 * 页面CSS优化
-* 检测html5支持
+* ☑ 检测html5支持
 * 前台页面使用jSelect级联
+* 支持配置文件apikey/application id
+* 支持反向代理
 
 // vim: set ft=asciidoc:
