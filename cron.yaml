@@ -1,0 +1,4 @@
+cron:
+- description: 每12小时同步一次最后更新的10个城市
+  url: /event/sync
+  schedule: every 12 hours

@@ -5,7 +5,7 @@
 	<p>A application to sync douban.com events to Google Calendar.</p>
 	<p>dbevent2gc是一个GAE应用，它将豆瓣同城的活动同步到Google Calendar的日历，
 		允许用户订阅活动而知道最近几周周边将发生活动。</p>
-	<p><img src="https://github.com/alswl/dbevent2gc/raw/master/static/image/dbevent2gc.png" style="border-width: 0;" alt=""dbevent2gc" style="border:solid 1px""></p>
+	<p><img src="https://github.com/alswl/dbevent2gc/raw/master/static/image/dbevent2gc.png" style="border-width: 0;" alt="dbevent2gc"></p>
 	<p>dbevent2gc是基于Python/web.py/mako/iCalendar的，源代码地址在
 		<a href="https://github.com/alswl/dbevent2gc">https://github.com/alswl/dbevent2gc</a></p>
 
@@ -13,7 +13,7 @@
 	<p>目前dbevent2gc运行在GAE上面，地址是 <a href="http://dbevent2gc.appspot.com/">http://dbevent2gc.appspot.com/</a>
 		登录这个地址可以选择需要订阅的城市和活动类型，然后会生成一个按钮，
 		点击这个按钮可以直接将选择的活动订阅到Google日历。</p>
-	<p>如果你无法翻墙，可以使用 <a href="http://dbevent2gc.appspot.com/event/location/beijing?type=all&amp;salt=20111126">http://dbevent2gc.appspot.com/event/location/beijing?type=all&amp;salt=20111126</a>
+	<p>如果你无法翻墙，可以使用 <a href="http://dbevent2gc.appspot.com/event/location/beijing?type=all&amp;length=12&amp;salt=20111126">http://dbevent2gc.appspot.com/event/location/beijing?type=all&amp;length=12&amp;salt=20111126</a>
 		这样的地址添加到你的Google Calender里面。</p>
 	<p>接受的参数：</p>
 	<ul>
@@ -26,6 +26,9 @@
 		party, salon, sports, travel. 可选参数,默认为all
 		</li>
 		<li>
+		活动时间长度 length，计时单位是小时，该选项允许用户过滤合适时间长度的活动。可选参数，默认是不过滤。
+		</li>
+		<li>
 		随机数salt（你可以选当前时间作为随机数，这是为了防止Google日历获取旧有数据，
 		如果你愿意，也可以将自己的用户名作为salt值。再Geek一点，你可以使用一个uid）
 		</li>
@@ -35,6 +38,37 @@
 	<p>如果想自己搭建GAE应用，也很简单，直接使用
 		<tt>git://github.com/alswl/dbevent2gc.git</tt> 就可以获取最新代码，
 		然后嘛去GAE注册一个应用，上传即可运行了。</p>
+
+	<h2><a name="_change_log"></a>4. CHANGE LOG</h2>
+	<ul>
+		<li>
+		2011-10-30 初始化项目
+		</li>
+		<li>
+		2011-11-19 静态数据解析
+		</li>
+		<li>
+		2011-11-21 使用iCalendar包解析
+		</li>
+		<li>
+		2011-11-24 使用动态数据
+		</li>
+		<li>
+		2011-11-25 支持过滤活动类型
+		</li>
+		<li>
+		2011-11-26 支持直接添加到Google Calendar
+		</li>
+		<li>
+		2011-11-29 使用GAE数据库存储数据
+		</li>
+		<li>
+		2011-11-29 支持过滤活动时间长度
+		</li>
+		<li>
+		2011-11-30 加入后台队列/定时脚本来执行同步数据
+		</li>
+	</ul>
 	<p>dbevent2gc by <a href="http://log4d.com">alswl</a></p>
 </article>
 

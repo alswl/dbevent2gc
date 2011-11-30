@@ -41,12 +41,7 @@ def internalerror():
 app = web.application(routes, locals())
 app.notfound = notfound
 
-#调试
-DEBUG = True
-if DEBUG:
-    web.config.debug = True
-else:
-    app.internalerror = internalerror
+app.internalerror = internalerror
 
 
 def main():

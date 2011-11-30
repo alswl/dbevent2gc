@@ -3,6 +3,10 @@ version: 1
 runtime: python
 api_version: 1
 
+builtins:
+- datastore_admin: on
+- appstats: on
+
 handlers:
 - url: /image
   static_dir: static/image
@@ -17,6 +21,9 @@ handlers:
   static_files: static/\1
   upload: static/(.*\.(gif|png|jpg))
 
+- url: /event/sync
+  script: app.py
+  login: admin
+
 - url: /(.*)
   script: app.py
-

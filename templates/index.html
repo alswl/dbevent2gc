@@ -5,16 +5,15 @@
 <script type="text/javascript">
 	$(function() {
 
-		$('#city, #type').change(function() {
+		$('#city, #type, #length').change(function() {
 			var cityId = $('#city').val();
 			if ($.trim(cityId) == '') {
 				$('#generate-result').hide();
-				$('#generate-result a').attr('href', '');
-				$('#generate-result input').val('');
 			} else {
 				var type = $('#type').val();
+				var length = $('#length').val()
 				var salt = new Date().format('yyyymmddHHMMss');
-				var url = window.location + 'event/location/' + cityId + '?type=' + type + '&salt=' + salt;
+				var url = window.location + 'event/location/' + cityId + '?type=' + type + '&length=' + length + '&salt=' + salt;
 				var googleUrl = 'http://www.google.com/calendar/render?cid=';
 				url = googleUrl + escape(url);
 				$('#generate-result').show();
@@ -35,7 +34,7 @@
 </script>
 </%block>
 
-<h2>选择需要生活日历的城市和活动类型</h2>
+<h2>选择需要的城市和活动类型</h2>
 
 <article>
 
@@ -66,6 +65,22 @@
 				<option value="travel" >旅行</option>
 				<option value="commonweal" >公益</option>
 				<option value="others" >其他</option>
+			</select>
+		</label>
+	</section>
+
+	<section>
+		<label>活动时间长度
+			<select id="length">
+				<option value="all" >任意</option>
+				<option value="3" >3小时之内</option>
+				<option value="6" >6小时之内</option>
+				<option value="12" >半天之内</option>
+				<option value="24" >1天之内</option>
+				<option value="48" >2天之内</option>
+				<option value="72" >3天之内</option>
+				<option value="168" >1周之内</option>
+				<option value="720" >30天之内</option>
 			</select>
 		</label>
 	</section>
