@@ -11,11 +11,13 @@ from icalendar import Calendar, Event, UTC
 
 from environment import render
 from model.dbevent import Dbevent, dbevent2event, xml2dbevents
-from controller.sync import Sync
+from model.syncqueue import SyncQueue
+from controller.sync import Sync, SyncLocation
 from util.doubanapi import fetchEvent
 
 routes = (
     '/test', 'Test',
+    '/sync-location', 'SyncLocation',
     '/sync', 'Sync',
     '/location/(.+)', 'Get',
 )
@@ -66,12 +68,6 @@ class Get:
 
         query = getDbeventsQuery(location, category, length)
 
-        if query.count() == 0: #如果数据库没有值，则去实时查询
-            xml = fetchEvent(location, category=category)
-            dbevents_new = xml2dbevents(xml)
-            db.put(dbevents_new)
-            query = getDbeventsQuery(location, category, length)
-
         result = query.fetch(50)
         #豆瓣活动转换到iCalendar Event
         events = [dbevent2event(e) for e in result]
@@ -92,7 +88,7 @@ def getDbeventsQuery(location_id, category, length, start=0, count=50):
             dbevents.filter('category =', 'event.' + category)
         if length > 0: #活动长度
             dbevents.filter('length <=', length)
-        #dbevents.order("-id")
+        dbevents.order("-id")
         return dbevents
 
     dbevents = getDbeventsQueryFromDb(location_id,
@@ -105,6 +101,12 @@ def getDbeventsQuery(location_id, category, length, start=0, count=50):
         xml = fetchEvent(location_id, category=category)
         dbevents_new = xml2dbevents(xml)
         db.put(dbevents_new)
+        SyncQueue(key_name=location_id,
+                  location=location_id,
+                  last_sync=datetime(1988, 12, 24)).put()
+        #db.run_in_transaction(lambda i, j: db.put(i) and db.put(j),
+                             #dbevents_new, #FIXME 加入事务
+                             #sysQueue)
 
     return getDbeventsQueryFromDb(location_id,
                                   category,

@@ -127,4 +127,5 @@ def entry2dbevent(entry):
         dbevent.geo_point = unicode(geo_point.string)
 
     return dbevent
+
 # vim: set ft=python:

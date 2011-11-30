@@ -1,0 +1,3 @@
+queue:
+- name: sync-location
+  rate: 50/m
