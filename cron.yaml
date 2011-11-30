@@ -1,4 +1,4 @@
 cron:
-- description: 每12小时同步一次最后更新的10个城市
+- description: every 12 hours sync the last update 10 citys.
   url: /event/sync
   schedule: every 12 hours
