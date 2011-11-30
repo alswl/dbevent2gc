@@ -21,5 +21,9 @@ handlers:
   static_files: static/\1
   upload: static/(.*\.(gif|png|jpg))
 
+- url: /event/sync
+  script: app.py
+  login: admin
+
 - url: /(.*)
   script: app.py

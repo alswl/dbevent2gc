@@ -58,6 +58,7 @@ CHANGE LOG
 * 2011-11-26 支持直接添加到Google Calendar
 * 2011-11-29 使用GAE数据库存储数据
 * 2011-11-29 支持过滤活动时间长度
+* 2011-11-30 加入后台队列/定时脚本来执行同步数据
 
 dbevent2gc by http://log4d.com[alswl]
 

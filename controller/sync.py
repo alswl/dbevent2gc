@@ -38,7 +38,7 @@ class SyncLocation:
         location_id = params.location
         start = int(params.start)
 
-        xml = fetchEvent(location_id, category='all', start=start, max=5)
+        xml = fetchEvent(location_id, category='all', start=start, max=50)
         start, count, totalCount = getXmlCursor(xml)
         dbevents= xml2dbevents(xml)
         db.put(dbevents)
