@@ -33,6 +33,7 @@ class Dbevent(db.Model):
     length = db.IntegerProperty(required=True)
     where = db.StringProperty() #地点
     geo_point = db.StringProperty() #坐标
+    create_at = db.DateTimeProperty(required=True) # 时间戳
 
     def parse_event(self):
         """转换豆瓣数据模型到iCal数据模型"""
@@ -54,7 +55,7 @@ class Dbevent(db.Model):
             location += u' @(%s)' %self.geo_point
         event.add('location', location)
         #event.add('dtstamp', datetime.now())
-        event['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
+        event['dtstamp'] = datetime.strftime(self.create_at, '%Y%m%dT%H%M%SZ')
         event['uid'] = self.id
         return event
 
@@ -127,6 +128,7 @@ def entry2dbevent(entry):
         end_time=end_time,
         length=length,
         where=where,
+        create_at=datetime.now(),
         )
 
     geo_point = entry.find('georss:point')
