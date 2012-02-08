@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 #coding=utf-8
 
+import logging
 from datetime import datetime
 
 from BeautifulSoup import BeautifulStoneSoup
@@ -63,12 +64,17 @@ def xml2dbevents(xml):
     entrys = soup.findAll('entry')
     events = [] #FIXME 名字修改
     for entry in entrys:
-        events.append(entry2dbevent(entry))
+        try:
+            events.append(entry2dbevent(entry))
+        except Exception, e:
+            logging.error(u'entry2dbevent error: %s' %entry)
+            continue
     return events
 
 def entry2dbevent(entry):
     """转换entry xml到dbevent"""
-    self_link = entry.find('link', attrs={'rel': 'self'})['href']
+
+    self_link = str(entry.find('id').string)
     id = int(self_link.split('/')[-1])
 
     title = unicode(entry.title.string)
