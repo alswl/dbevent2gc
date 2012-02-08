@@ -32,7 +32,7 @@ routes = (
 
 #定义404
 def notfound():
-    return web.internalerror(u'oh, shit, 404 notfound!')
+    return web.notfound(u'oh, shit, 404 notfound!')
 
 #定义500
 def internalerror():

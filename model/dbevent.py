@@ -34,49 +34,50 @@ class Dbevent(db.Model):
     where = db.StringProperty() #地点
     geo_point = db.StringProperty() #坐标
 
-def dbevent2event(dbevent):
-    """转换豆瓣数据模型到iCal数据模型"""
-    event = Event()
-    event.add('summary', dbevent.title)
-    desc = dbevent.summary
-    if isinstance(dbevent.participants, int):
-        desc += '\n\n' + u'参与人数 %d, 感兴趣人数 %d' \
-                %(dbevent.participants, dbevent.wishers)
-    desc += '\n\n' + dbevent.alternate_link
-    event.add('DESCRIPTION', desc)
-    #event.add('dtstart', dbevent.start_time)
-    event['dtstart'] = datetime.strftime(dbevent.start_time, '%Y%m%dT%H%M%SZ')
-    #event.add('dtend', dbevent.end_time)
-    event['dtend'] = datetime.strftime(dbevent.end_time, '%Y%m%dT%H%M%SZ')
-    event.add('STATUS', 'CONFIRMED')
-    location = dbevent.where
-    if dbevent.geo_point != None:
-        location += u' @(%s)' %dbevent.geo_point
-    event.add('location', location)
-    #event.add('dtstamp', datetime.now())
-    event['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
-    event['uid'] = dbevent.id
-    return event
+    def parse_event(self):
+        """转换豆瓣数据模型到iCal数据模型"""
+        event = Event()
+        event.add('summary', self.title)
+        desc = self.summary
+        if isinstance(self.participants, int):
+            desc += '\n\n' + u'参与人数 %d, 感兴趣人数 %d' \
+                    %(self.participants, self.wishers)
+        desc += '\n\n' + self.alternate_link
+        event.add('DESCRIPTION', desc)
+        #event.add('dtstart', self.start_time)
+        event['dtstart'] = datetime.strftime(self.start_time, '%Y%m%dT%H%M%SZ')
+        #event.add('dtend', self.end_time)
+        event['dtend'] = datetime.strftime(self.end_time, '%Y%m%dT%H%M%SZ')
+        event.add('STATUS', 'CONFIRMED')
+        location = self.where
+        if self.geo_point != None:
+            location += u' @(%s)' %self.geo_point
+        event.add('location', location)
+        #event.add('dtstamp', datetime.now())
+        event['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
+        event['uid'] = self.id
+        return event
 
 def xml2dbevents(xml):
     """使用beautifulsoup转换html到Dbevent"""
     soup = BeautifulStoneSoup(xml)
     entrys = soup.findAll('entry')
-    events = [] #FIXME 名字修改
+    dbevents = [] #FIXME 名字修改
     for entry in entrys:
         try:
-            events.append(entry2dbevent(entry))
+            dbevents.append(entry2dbevent(entry))
         except Exception, e:
             logging.error(u'entry2dbevent error: %s' %entry)
             continue
-    return events
+    return dbevents
 
 def entry2dbevent(entry):
-    """转换entry xml到dbevent"""
+    """
+    转换entry xml到dbevent
+    """
 
     self_link = str(entry.find('id').string)
     id = int(self_link.split('/')[-1])
-
     title = unicode(entry.title.string)
     category = entry.category['term'].split('#')[-1]
     alternate_link = entry.find('link', attrs={'rel': 'alternate'})['href']

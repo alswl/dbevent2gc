@@ -10,7 +10,7 @@ from google.appengine.ext import db
 from icalendar import Calendar, Event, UTC
 
 from environment import render
-from model.dbevent import Dbevent, dbevent2event, xml2dbevents
+from model.dbevent import Dbevent, xml2dbevents
 from model.syncqueue import SyncQueue
 from controller.sync import Sync, SyncLocation
 from util.doubanapi import fetchEvent
@@ -39,12 +39,11 @@ category_map = {
 class Get:
     def GET(self, location):
         web.header('Content-Type', 'text/plain;charset=UTF-8')
-        params = web.input(type='all', length=None) #web.py post/get默认值
-        category = params.type #活动类型
-        length = params.length #活动长度
-        if category not in category_map: #处理意外的type参数
-            category = 'all'
-        category = category.strip()
+        params = web.input(type='all', length=None) # web.py post/get默认值
+        category = params.type # 活动类型
+        length = params.length # 活动长度
+        if category not in category_map: # 处理意外的type参数
+            raise web.notfound()
         if length != None and length.isdigit() and length > 0:
             length = int(length)
 
@@ -72,7 +71,7 @@ class Get:
         #result = query.fetch()
         result = sorted(query, key=lambda i: -i.id) #FIXME 使用内存排序
         #豆瓣活动转换到iCalendar Event
-        events = [dbevent2event(e) for e in result]
+        events = [e.parse_event() for e in result]
         for e in events:
             cal.add_component(e)
 
@@ -118,6 +117,8 @@ def getDbeventsQuery(location_id, category, length=None, start=0, count=50):
 
 class Test:
     def GET(self):
+        raise web.notfound()
+
         location = 'nanjing'
         category = 'all'
         xml = fetchEvent(location, category=category, start=50, max=50)
