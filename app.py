@@ -30,6 +30,13 @@ routes = (
     '/', index.app,
 )
 
+# config
+config = {
+    'cache': {
+        'memcache_timeout': 60 * 60 * 12
+    }
+}
+
 #定义404
 def notfound():
     return web.notfound(u'oh, shit, 404 notfound!')

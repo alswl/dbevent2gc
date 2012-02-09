@@ -5,8 +5,10 @@ from datetime import datetime
 import logging
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 from icalendar import Calendar as ICalendar, Event, UTC
 
+from config import config
 from model.dbevent import Dbevent, xml2dbevents
 from model.syncqueue import SyncQueue
 from util.doubanapi import fetchEvent
@@ -40,6 +42,11 @@ def getCalendar(location, category='all', length=None):
     """
     获取现成的日历，读取顺序为Memcache/Database
     """
+    # 从MemCache获取数据
+    html = memcache.get('%s-%s-%s' %(location, category, str(length)))
+    if not html is None:
+        return html
+
     cal = ICalendar()
     cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
     cal.add('version', '2.0')
@@ -51,7 +58,7 @@ def getCalendar(location, category='all', length=None):
             %(location, categoryMap[category]))
     desc = u'dbevent2gc - 豆瓣%s - %s活动 \n' \
             %(location, categoryMap[category])
-    if length != None:
+    if not length is None:
         desc += u'活动时间长度：%d小时以内' %length
     desc += u'via https://github.com/alswl/dbevent2gc\n' \
             u'by alswl(http://log4d.com)'
@@ -67,7 +74,11 @@ def getCalendar(location, category='all', length=None):
     for e in events:
         cal.add_component(e)
 
-    return cal.as_string()
+    html = cal.as_string()
+    memcache.set('%s-%s-%s' %(location, category, str(length)),
+                 html,
+                 time=config['cache']['memcache_timeout'])
+    return html
 
 def getDbevents(location_id, category, length=None, start=0, count=50):
     """
