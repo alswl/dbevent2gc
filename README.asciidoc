@@ -26,7 +26,7 @@ https://github.com/alswl/dbevent2gc
 登录这个地址可以选择需要订阅的城市和活动类型，然后会生成一个按钮，
 点击这个按钮可以直接将选择的活动订阅到Google日历。
 
-如果你无法翻墙，可以使用 http://dbevent2gc.appspot.com/event/location/beijing?type=all&length=12&salt=20111126
+如果你无法翻墙，可以使用 http://dbevent2gc.appspot.com/event/location/beijing?type=all&length=12
 这样的地址添加到你的Google Calender里面。
 
 接受的参数：
@@ -37,8 +37,6 @@ https://github.com/alswl/dbevent2gc
 party, salon, sports, travel. 可选参数,默认为all
 * 活动时间长度 length，计时单位是小时，该选项允许用户过滤合适时间长度的活动。
 可选参数，默认是不过滤。
-* 随机数salt（你可以选当前时间作为随机数，这是为了防止Google日历获取旧有数据，
-如果你愿意，也可以将自己的用户名作为salt值。再Geek一点，你可以使用一个uid）
 
 安装方法
 ----
