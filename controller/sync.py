@@ -28,7 +28,6 @@ class Sync:
 
         return 'start sync'
 
-
 class SyncLocation:
     """同步某个城市"""
     def GET(self):

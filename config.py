@@ -7,7 +7,10 @@
 
 config = {
     'cache': {
-        'memcache_timeout': 60 * 60 * 12
+        'memcache_timeout': 60 * 60 * 2
+    },
+    'display': {
+        'page_count': 200
     }
 }
 

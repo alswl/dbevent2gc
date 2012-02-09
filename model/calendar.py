@@ -43,9 +43,9 @@ def getCalendar(location, category='all', length=None):
     获取现成的日历，读取顺序为Memcache/Database
     """
     # 从MemCache获取数据
-    html = memcache.get('%s-%s-%s' %(location, category, str(length)))
-    if not html is None:
-        return html
+    string = memcache.get('%s-%s-%s' %(location, category, str(length)))
+    if not string is None:
+        return string
 
     cal = ICalendar()
     cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
@@ -65,25 +65,54 @@ def getCalendar(location, category='all', length=None):
     cal.add('X-WR-CALDESC', desc)
     cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
 
-    query = getDbevents(location, category, length)
+    dbevents = getDbevents(location, category, length)
+    #result = sorted(dbevents, key=lambda i: -i.id) #FIXME 使用内存排序
 
-    #result = query.fetch()
-    result = sorted(query, key=lambda i: -i.id) #FIXME 使用内存排序
     #活动转换到iCalendar Event
-    events = [e.parse_event() for e in result]
+    events = [e.parse_event() for e in dbevents]
     for e in events:
         cal.add_component(e)
 
-    html = cal.as_string()
+    string = cal.as_string()
     memcache.set('%s-%s-%s' %(location, category, str(length)),
-                 html,
+                 string,
                  time=config['cache']['memcache_timeout'])
-    return html
+    return string
 
-def getDbevents(location_id, category, length=None, start=0, count=50):
+def getDbevents(location_id, category, length=None):
+    dbevents = []
+    start = 1
+    max = config['display']['page_count']
+
+    # 当出现类型筛选时候，获取最近一周的，最多获取200个
+    while (len(dbevents) == 0 or not isMoreThenAWeek(dbevents[-1])) \
+          and len(dbevents) < max:
+        xml = fetchEvent(location_id,
+                         category=category,
+                         max=50,
+                         start=start)
+        dbevents_new = xml2dbevents(xml)
+        if len(dbevents_new) == 0: # 豆瓣没了
+            break
+        dbevents += dbevents_new
+        start += 50
+    return dbevents
+
+def isMoreThenAWeek(dbevent):
+    #import pdb, sys
+    #for attr in ('stdin', 'stdout', 'stderr'):
+        #setattr(sys, attr, getattr(sys, '__%s__' % attr))
+    #pdb.set_trace()
+    end_time = dbevent.end_time.tzinfo.utcoffset(dbevent.end_time) \
+            + dbevent.end_time.replace(tzinfo=None) # 时区转换
+    delta = datetime.utcnow() - end_time
+    return delta.days > 7
+
+def getDbeventsV1(location_id, category, length=None, start=0, count=50):
     """
     从数据库获取dbevents的query，如果取不到就去豆瓣同步
     """
+    raise Exception
 
     dbevents = getDbeventsQueryFromDb(location_id,
                                       category,
@@ -93,23 +122,19 @@ def getDbevents(location_id, category, length=None, start=0, count=50):
 
     if dbevents.count() == 0: #如果数据库没有值，则去实时查询
         xml = fetchEvent(location_id, category=category)
-        dbevents_new = xml2dbevents(xml)
-        db.put(dbevents_new)
+        dbevents = xml2dbevents(xml)
+        db.put(dbevents)
         SyncQueue(key_name=location_id,
                   location=location_id,
                   last_sync=datetime(1988, 12, 24)).put()
         #db.run_in_transaction(lambda i, j: db.put(i) and db.put(j),
-                             #dbevents_new, #FIXME 加入事务
+                             #dbevents, #FIXME 加入事务
                              #sysQueue)
 
-    return getDbeventsQueryFromDb(location_id,
-                                  category,
-                                  length,
-                                  start,
-                                  count)
+    return dbevents
 
 def getDbeventsQueryFromDb(location_id, category, length, start, count):
-    """内函数"""
+    """从数据库查询dbevents"""
     dbevents = Dbevent.all() #从数据库获取数据
     dbevents.filter('location_id =', location_id) #地点
     if category != 'all': #类别

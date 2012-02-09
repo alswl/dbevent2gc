@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 #coding=utf-8
 
-from datetime import datetime
 import logging
 
 import web
@@ -15,8 +14,8 @@ from controller.sync import Sync, SyncLocation
 
 routes = (
     '/test', 'Test',
-    '/sync-location', 'SyncLocation',
-    '/sync', 'Sync',
+    #'/sync-location', 'SyncLocation',
+    #'/sync', 'Sync',
     '/location/(.+)', 'Get',
 )
 
