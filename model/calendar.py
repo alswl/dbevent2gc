@@ -92,6 +92,8 @@ def getDbevents(location_id, category, length=None):
                          max=50,
                          start=start)
         dbevents_new = xml2dbevents(xml)
+        if not length is None:
+            dbevents_new = [x for x in dbevents_new if x.length < length]
         if len(dbevents_new) == 0: # 豆瓣没了
             break
         dbevents += dbevents_new
@@ -99,10 +101,7 @@ def getDbevents(location_id, category, length=None):
     return dbevents
 
 def isMoreThenAWeek(dbevent):
-    #import pdb, sys
-    #for attr in ('stdin', 'stdout', 'stderr'):
-        #setattr(sys, attr, getattr(sys, '__%s__' % attr))
-    #pdb.set_trace()
+    """活动距今时间是否大于一周了"""
     end_time = dbevent.end_time.tzinfo.utcoffset(dbevent.end_time) \
             + dbevent.end_time.replace(tzinfo=None) # 时区转换
     delta = datetime.utcnow() - end_time
