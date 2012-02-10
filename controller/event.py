@@ -27,8 +27,10 @@ class Get:
         length = params.length # 活动长度
         if category not in categoryMap: # 处理意外的type参数
             raise web.notfound()
-        if length != None and length.isdigit() and length > 0:
+        if length is not None and length.isdigit() and length > 0:
             length = int(length)
+        else:
+            length = None
 
         return getCalendar(location, category, length)
 
