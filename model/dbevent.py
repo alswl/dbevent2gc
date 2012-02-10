@@ -76,7 +76,8 @@ def xml2dbevents(xml):
         try:
             dbevents.append(entry2dbevent(entry))
         except Exception, e:
-            logging.error(u'entry2dbevent error: %s' %entry)
+            logging.error(e)
+            #logging.error(u'entry2dbevent error: %s' %entry)
             continue
     return dbevents
 
@@ -89,7 +90,7 @@ def entry2dbevent(entry):
     id = int(self_link.split('/')[-1])
     title = unicode(entry.title.string)
     category = entry.category['term'].split('#')[-1]
-    alternate_link = entry.find('link', attrs={'rel': 'alternate'})['href']
+    alternate_link = 'http://www.douban.com/event/%d/' %id
     summary = unicode(entry.summary.string) #.replace(r'\n', '</br>')
     content = unicode(entry.content.string)
 
