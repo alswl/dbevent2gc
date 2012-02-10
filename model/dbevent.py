@@ -9,6 +9,8 @@ from icalendar import Calendar, Event, UTC
 import iso8601
 from google.appengine.ext import db
 
+from util.utc import get_utc_datetime
+
 class Dbevent(db.Model):
     """豆瓣同城事件数据模型"""
 
@@ -46,9 +48,15 @@ class Dbevent(db.Model):
         desc += '\n\n' + self.alternate_link
         event.add('DESCRIPTION', desc)
         #event.add('dtstart', self.start_time)
-        event['dtstart'] = datetime.strftime(self.start_time, '%Y%m%dT%H%M%SZ')
+        event['dtstart'] = datetime.strftime(
+            get_utc_datetime(self.start_time),
+            '%Y%m%dT%H%M%SZ'
+            )
         #event.add('dtend', self.end_time)
-        event['dtend'] = datetime.strftime(self.end_time, '%Y%m%dT%H%M%SZ')
+        event['dtend'] = datetime.strftime(
+            get_utc_datetime(self.end_time),
+            '%Y%m%dT%H%M%SZ'
+            )
         event.add('STATUS', 'CONFIRMED')
         location = self.where
         if self.geo_point != None:

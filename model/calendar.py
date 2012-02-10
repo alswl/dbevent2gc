@@ -12,6 +12,7 @@ from config import config
 from model.dbevent import Dbevent, xml2dbevents
 from model.syncqueue import SyncQueue
 from util.doubanapi import fetchEvent
+from util.utc import get_utc_datetime
 
 categoryMap = {
     'all': u'所有类型',
@@ -63,7 +64,7 @@ def getCalendar(location, category='all', length=None):
     desc += u'via https://github.com/alswl/dbevent2gc\n' \
             u'by alswl(http://log4d.com)'
     cal.add('X-WR-CALDESC', desc)
-    cal['dtstamp'] = datetime.strftime(datetime.now(), '%Y%m%dT%H%M%SZ')
+    cal['dtstamp'] = datetime.strftime(datetime.utcnow(), '%Y%m%dT%H%M%SZ')
 
     dbevents = getDbevents(location, category, length)
     #result = sorted(dbevents, key=lambda i: -i.id) #FIXME 使用内存排序
@@ -102,9 +103,7 @@ def getDbevents(location_id, category, length=None):
 
 def isMoreThenAWeek(dbevent):
     """活动距今时间是否大于一周了"""
-    end_time = dbevent.end_time.tzinfo.utcoffset(dbevent.end_time) \
-            + dbevent.end_time.replace(tzinfo=None) # 时区转换
-    delta = datetime.utcnow() - end_time
+    delta = datetime.utcnow() - get_utc_datetime(dbevent.end_time)
     return delta.days > 7
 
 def getDbeventsV1(location_id, category, length=None, start=0, count=50):
