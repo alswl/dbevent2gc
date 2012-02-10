@@ -116,7 +116,7 @@ def entry2dbevent(entry):
     end_time = iso8601.parse_date(entry.find('gd:when')['endtime'])
     where = entry.find('gd:where')['valuestring']
 
-    length = end_time-start_time
+    length = end_time - start_time
     length = length.days * 24 + length.seconds / 60 /60
 
     dbevent = Dbevent(

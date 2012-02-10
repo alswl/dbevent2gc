@@ -10,4 +10,4 @@ def get_utc_datetime(d):
     if d.tzinfo is None:
         return d
     else:
-        return d.tzinfo.utcoffset(d) + d.replace(tzinfo=None)
+        return d.replace(tzinfo=None) - d.tzinfo.utcoffset(d) 
