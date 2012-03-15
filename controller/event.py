@@ -9,7 +9,7 @@ from google.appengine.ext import db
 
 from environment import render
 from model.dbevent import Dbevent
-from model.calendar import categoryMap, getCalendar
+from model.calendar import Calendar
 from controller.sync import Sync, SyncLocation
 
 routes = (
@@ -25,14 +25,16 @@ class Get:
         params = web.input(type='all', length=None) # web.py post/get默认值
         category = params.type # 活动类型
         length = params.length # 活动长度
-        if category not in categoryMap: # 处理意外的type参数
-            raise web.notfound()
         if length is not None and length.isdigit() and length > 0:
             length = int(length)
         else:
             length = None
 
-        return getCalendar(location, category, length)
+        calendar = Calendar.getCalendar(location)
+        try:
+            return calendar.getICalendarStr(category, length)
+        except ValueError, e:
+            raise web.notfound()
 
 class Test:
     def GET(self):
