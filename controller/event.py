@@ -14,8 +14,10 @@ from controller.sync import Sync, SyncLocation
 
 routes = (
     '/test', 'Test',
-    #'/sync-location', 'SyncLocation',
-    #'/sync', 'Sync',
+    '/sync-location', 'SyncLocation',
+    '/sync', 'Sync',
+    '/location/(.+)/update', 'Update',
+    '/location/(.+)/delete', 'Delete',
     '/location/(.+)', 'Get',
 )
 
@@ -30,11 +32,19 @@ class Get:
         else:
             length = None
 
-        calendar = Calendar.getCalendar(location)
+        calendar = Calendar.getCalendar(location, category, length)
         try:
-            return calendar.getICalendarStr(category, length)
+            return calendar.getICalendarStr()
         except ValueError, e:
             raise web.notfound()
+
+class Update:
+    def GET(self, location):
+        return Dbevent.updateDb(location)
+
+class Delete:
+    def GET(self, location):
+        return Dbevent.deleteDb(location)
 
 class Test:
     def GET(self):

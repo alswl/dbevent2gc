@@ -10,7 +10,7 @@ config = {
         'memcache_timeout': 60 * 60 * 2
     },
     'display': {
-        'page_count': 200
+        'page_count': 2000
     }
 }
 

@@ -17,7 +17,7 @@ from util.utc import get_utc_datetime
 class Calendar(db.Model):
     """日历"""
 
-    location = db.StringProperty(required=True) # 城市名称
+    location_id = db.StringProperty(required=True) # 城市名称
     #timezone = db.StringProperty(required=True) # 时区
     #desc = db.StringProperty()
     #category = db.StringProperty(required=True)
@@ -41,37 +41,41 @@ class Calendar(db.Model):
     }
 
     @staticmethod
-    def getCalendar(location):
+    def getCalendar(location_id, category='all', length=None):
         """
         根据参数获取日历，读取顺序为Memcache/Database
         """
         query = db.Query(Calendar)
-        query.filter('location =', location)
+        query.filter('location_id =', location_id)
         calendar = query.get()
         if calendar is None:
-            calendar = Calendar(location=location,
+            calendar = Calendar(location_id=location_id,
                                create_at=datetime.now())
             calendar.put()
+        calendar._category = category
+        calendar._length = length
         return calendar
 
-    def getICalendarStr(self, category, length=None):
+    def getICalendarStr(self):
         """获取该日历对应的 iCalendar 文本"""
-        if not self._categoryMap.has_key(category):
+        if not self._categoryMap.has_key(self._category):
             raise ValueError
 
         # 从MemCache获取数据
-        cache = memcache.get('%s-%s-%s'
-                              %(self.location, category, str(length)))
+        cache = memcache.get('%s-%s-%s' %(self.location_id,
+                                          self._category,
+                                          str(self._length)))
         if not cache is None:
             return cache
 
-        string = self.__getICalendar(category, length).as_string()
-        memcache.set('%s-%s-%s' %(self.location, category, str(length)),
+        string = self.__getICalendar().as_string()
+        memcache.set('%s-%s-%s' %(self.location_id, self._category,
+                                  str(self._length)),
                      string,
                      time=config['cache']['memcache_timeout'])
         return string
 
-    def __getICalendar(self, category, length=None):
+    def __getICalendar(self):
         """获取该日历对应的 iCalendar"""
         cal = ICalendar()
         cal.add('prodid', '-//Google Inc//Google Calendar 70.9054//EN')
@@ -81,59 +85,23 @@ class Calendar(db.Model):
         cal.add('METHOD', 'PUBLISH')
         cal.add('CALSCALE', 'GREGORIAN')
         cal.add('X-WR-CALNAME', u'豆瓣%s - %s活动' \
-                %(self.location, self._categoryMap[category]))
+                %(self.location_id, self._categoryMap[self._category]))
         desc = u'dbevent2gc - 豆瓣%s - %s活动 \n' \
-                %(self.location, self._categoryMap[category])
-        if not length is None:
-            desc += u'活动时间长度：%d小时以内' %length
+                %(self.location_id, self._categoryMap[self._category])
+        if not self._length is None:
+            desc += u'活动时间长度：%d小时以内' %self._length
         desc += u'via https://github.com/alswl/dbevent2gc\n' \
                 u'by alswl(http://log4d.com)'
         cal.add('X-WR-CALDESC', desc)
         cal['dtstamp'] = datetime.strftime(datetime.utcnow(),
                                            '%Y%m%dT%H%M%SZ')
 
-        dbevents = getDbevents(self.location, category, length)
+        dbevents = Dbevent.getDbevents(self.location_id, self._category,
+                                       self._length)
 
         #将活动添加到日历
         map(lambda e: cal.add_component(e.parse_event()), dbevents)
         return cal
-
-    def updateDb(self):
-        """更新日历中活动"""
-        pass
-
-    def deleteDb(self):
-        """删除过期的活动"""
-        pass
-
-def getDbevents(location_id, category, length=None):
-    """
-    根据条件获取Dbevents
-    """
-    dbevents = []
-    start = 1
-    max = config['display']['page_count']
-
-    # 当出现类型筛选时候，获取最近一周的，最多获取200个
-    while (len(dbevents) == 0 or not isMoreThenAWeek(dbevents[-1])) \
-          and len(dbevents) < max:
-        xml = fetchEvent(location_id,
-                         category=category,
-                         max=50,
-                         start=start)
-        dbevents_new = xml2dbevents(xml)
-        if not length is None:
-            dbevents_new = [x for x in dbevents_new if x.length < length]
-        if len(dbevents_new) == 0: # 豆瓣没了
-            break
-        dbevents += dbevents_new
-        start += 50
-    return dbevents
-
-def isMoreThenAWeek(dbevent):
-    """活动距今时间是否大于一周了"""
-    delta = datetime.utcnow() - get_utc_datetime(dbevent.end_time)
-    return delta.days > 7
 
 def getDbeventsV1(location_id, category, length=None, start=0, count=50):
     """
@@ -158,15 +126,4 @@ def getDbeventsV1(location_id, category, length=None, start=0, count=50):
                              #dbevents, #FIXME 加入事务
                              #sysQueue)
 
-    return dbevents
-
-def getDbeventsQueryFromDb(location_id, category, length, start, count):
-    """从数据库查询dbevents"""
-    dbevents = Dbevent.all() #从数据库获取数据
-    dbevents.filter('location_id =', location_id) #地点
-    if category != 'all': #类别
-        dbevents.filter('category =', 'event.' + category)
-    if isinstance(length, int) and length > 0: #活动长度
-        dbevents.filter('length <=', length)
-    #dbevents.order("-length") #TODO 使用排序
     return dbevents

@@ -2,7 +2,7 @@
 #coding=utf-8
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from BeautifulSoup import BeautifulStoneSoup
 from icalendar import Calendar, Event, UTC
@@ -10,6 +10,10 @@ import iso8601
 from google.appengine.ext import db
 
 from util.utc import get_utc_datetime
+
+from config import config
+from util.doubanapi import fetchEvent
+from model.syncqueue import SyncQueue
 
 class Dbevent(db.Model):
     """豆瓣同城事件数据模型"""
@@ -36,6 +40,24 @@ class Dbevent(db.Model):
     where = db.StringProperty() #地点
     geo_point = db.StringProperty() #坐标
     create_at = db.DateTimeProperty(required=True) # 时间戳
+
+    @staticmethod
+    def getDbevents(location_id, category, length=None):
+        """
+        根据条件获取Dbevents
+        """
+
+        query = db.Query(Dbevent)
+        query.filter('location_id =', location_id) #地点
+        if category != 'all': #类别
+            query.filter('category =', 'event.' + category)
+        if isinstance(length, int) and length > 0: #活动长度
+            query.filter('length <=', length)
+
+        dbevents = query.fetch(limit=1000)
+        if len(dbevents) == 0:
+            db.put(SyncQueue(key_name=location_id, location_id=location_id))
+        return dbevents
 
     def parse_event(self):
         """转换豆瓣数据模型到iCal数据模型"""
@@ -66,6 +88,45 @@ class Dbevent(db.Model):
         event['dtstamp'] = datetime.strftime(self.create_at, '%Y%m%dT%H%M%SZ')
         event['uid'] = self.id
         return event
+
+    def isMoreThenAWeek(self):
+        """活动距今时间是否大于一周了"""
+        delta = datetime.utcnow() - get_utc_datetime(self.end_time)
+        return delta.days > 7
+
+    @staticmethod
+    def updateDb(location_id):
+        """更新日历中活动"""
+        dbevents = []
+        start = 1
+        max = config['display']['page_count']
+
+        # 当出现类型筛选时候
+        while len(dbevents) < max:
+            xml = fetchEvent(location_id,
+                             max=50,
+                             start=start)
+            dbevents_new = xml2dbevents(xml)
+            dbevents += dbevents_new
+            if len(dbevents_new) < 50: # 豆瓣没了
+                break
+            start += 50
+        db.put(dbevents)
+        return len(dbevents)
+
+    @staticmethod
+    def deleteDb(location_id):
+        """删除结束30天的活动"""
+        while True:
+            query = db.Query(Dbevent)
+            query.filter('location_id =', location_id)
+            query.filter('end_time <',
+                         datetime.utcnow() - timedelta(days=30))
+            dbevents = query.fetch(1000)
+            if len(dbevents) == 0:
+                break
+            db.delete(dbevents)
+        return len(dbevents)
 
 def xml2dbevents(xml):
     """使用beautifulsoup转换html到Dbevent"""
