@@ -22,7 +22,8 @@ https://github.com/alswl/dbevent2gc
 使用方法
 ----
 
-目前dbevent2gc运行在GAE上面，地址是 http://dbevent2gc.log4d.com/
+目前dbevent2gc运行在GAE上面，地址是 http://dbevent2gc.appspot.com （墙外）
+http://dbevent2gc.log4d.com/ （我做的反向代理）
 登录这个地址可以选择需要订阅的城市和活动类型，然后会生成一个按钮，
 点击这个按钮可以直接将选择的活动订阅到Google日历。
 
