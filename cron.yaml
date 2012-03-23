@@ -1,4 +1,4 @@
 cron:
 - description: every 12 hours sync the last update 10 citys.
   url: /event/sync
-  schedule: every 12 hours
+  schedule: every 24 hours

@@ -16,7 +16,7 @@ def fetchEvent(location, category='all', max=50, start=0):
                                                                 start,
                                                                 max,
                                                                 apikey)
-    logging.info('fetch events from douban url: %s'%url)
+    logging.info('fetch events from douban url: %s' %url)
     result = urlfetch.fetch(url)
     if result.status_code == 200:
         return result.content

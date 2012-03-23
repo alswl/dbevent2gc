@@ -8,14 +8,17 @@ import web
 from google.appengine.ext import db
 from google.appengine.api.labs import taskqueue
 
+from config import config
 from model.syncqueue import SyncQueue
 from model.dbevent import Dbevent
+from model.calendar import Calendar
 
 class Sync:
     """同步数据库活动"""
     def GET(self):
         query = SyncQueue.all()
-        result = query.fetch(1000)
+        query.order('-update_at')
+        result = query.fetch(config['sync']['city_count'])
 
         for syncQuery in result:
             taskqueue.add(queue_name='sync-location',
@@ -38,6 +41,7 @@ class SyncLocation:
 
         length_update = Dbevent.updateDb(location_id)
         length_delete = Dbevent.deleteDb(location_id)
+        Calendar.deleteMemcacheCity(location_id)
         db.put(SyncQueue(key_name=location_id,
                          location_id=location_id,
                          update_at=datetime.utcnow()))
