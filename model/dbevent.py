@@ -102,12 +102,13 @@ class Dbevent(db.Model):
         dbevents = []
         start = 1
         max = config['sync']['max']
+        fetch_page_count = config['sync']['fetch_page_count']
 
         # 当出现类型筛选时候
         while len(dbevents) < max:
             try:
                 xml = fetchEvent(location_id,
-                                 max=50,
+                                 max=fetch_page_count,
                                  start=start)
             except DeadlineExceededError, e1:
                 logging.error(u'更新数据库跳过一页，超时了')
@@ -117,9 +118,9 @@ class Dbevent(db.Model):
                 break
             dbevents_new = Dbevent.xml2dbevents(xml)
             dbevents += dbevents_new
-            if len(dbevents_new) < 50: # 到最后一页了
+            if len(dbevents_new) < fetch_page_count: # 到最后一页了
                 break
-            start += 50
+            start += fetch_page_count
         db.put(dbevents)
         return len(dbevents)
 
