@@ -8,23 +8,26 @@ import web
 from google.appengine.ext import db
 from google.appengine.api.labs import taskqueue
 
-from model.dbevent import xml2dbevents
+from config import config
 from model.syncqueue import SyncQueue
-from util.doubanapi import fetchEvent, getXmlCursor
+from model.dbevent import Dbevent
+from model.calendar import Calendar
 
 class Sync:
     """同步数据库活动"""
     def GET(self):
         query = SyncQueue.all()
-        query.order('last_sync')
-        result = query.fetch(10)
+        query.order('-update_at')
+        result = query.fetch(config['sync']['city_count'])
 
         for syncQuery in result:
             taskqueue.add(queue_name='sync-location',
                           method='GET',
                           url='/event/sync-location',
-                          params={'location': syncQuery.location,
-                                  'start': '1'})
+                          params={
+                              'location': syncQuery.location_id,
+                          }
+                         )
 
         return 'start sync'
 
@@ -32,26 +35,17 @@ class SyncLocation:
     """同步某个城市"""
     def GET(self):
         params = web.input()
-        if not params.has_key('location') or not params.has_key('start'):
+        if not params.has_key('location'):
             raise web.seeother('../')
         location_id = params.location
-        start = int(params.start)
 
-        xml = fetchEvent(location_id, category='all', start=start, max=50)
-        start, count, totalCount = getXmlCursor(xml)
-        dbevents= xml2dbevents(xml)
-        db.put(dbevents)
-
-        if totalCount > start + count: #还有剩余，则加入队列
-            taskqueue.add(queue_name='sync-location', url='/event/sync-location',
-                          method='GET',
-                          params={
-                              'location': location_id,
-                              'start': str(start + count),
-                          })
-        else: #写入最后同步实践
-            db.put(SyncQueue(key_name=location_id,
-                      location=location_id,
-                      last_sync=datetime.now()))
+        length_update = Dbevent.updateDb(location_id)
+        length_delete = Dbevent.deleteDb(location_id)
+        Calendar.deleteMemcacheCity(location_id)
+        db.put(SyncQueue(key_name=location_id,
+                         location_id=location_id,
+                         update_at=datetime.utcnow()))
+        logging.info('update %s %d' %(location_id, length_update))
+        logging.info('delete %s %d' %(location_id, length_delete))
 
         return 'ok'
