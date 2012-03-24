@@ -21,6 +21,10 @@ handlers:
   static_files: static/\1
   upload: static/(.*\.(gif|png|jpg))
 
+- url: /favicon\.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon\.ico
+
 - url: /event/sync
   script: app.py
   login: admin
