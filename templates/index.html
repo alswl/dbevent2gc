@@ -12,7 +12,7 @@
 			} else {
 				var type = $('#type').val();
 				var length = $('#length').val()
-				var url = window.location + 'event/location/' + cityId + '?type=' + type + '&length=' + length;
+				var url = 'http://${app_url}' + '/event/location/' + cityId + '?type=' + type + '&length=' + length;
 				var googleUrl = 'http://www.google.com/calendar/render?cid=';
 				url = googleUrl + escape(url);
 				$('#generate-result').show();

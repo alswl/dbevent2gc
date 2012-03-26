@@ -4,7 +4,6 @@
 import logging
 
 import web
-from google.appengine.api import users
 from google.appengine.ext import db
 
 from environment import render
