@@ -15,7 +15,7 @@ config = {
     'sync': {
         'max': 1000,
         'city_count': 3,
-        'fetch_page_count': 30,
+        'fetch_page_count': 20,
     },
 }
 
