@@ -111,17 +111,20 @@ class Dbevent(db.Model):
                                  max=fetch_page_count,
                                  start=start)
             except DeadlineExceededError, e1:
-                logging.error(u'更新数据库跳过一页，超时了')
-                continue
+                logging.error(u'获取数据超时了')
+                break
             except OverQuotaError, e2:
-                logging.error(u'更新数据库中断，限额了')
+                logging.error(u'url fetch 中断，限额了')
                 break
             dbevents_new = Dbevent.xml2dbevents(xml)
             dbevents += dbevents_new
             if len(dbevents_new) < fetch_page_count: # 到最后一页了
                 break
             start += fetch_page_count
-        db.put(dbevents)
+        try:
+            db.put(dbevents)
+        except OverQuotaError, e:
+            logging.error(u'更新数据库中断，限额了')
         return len(dbevents)
 
     @staticmethod
