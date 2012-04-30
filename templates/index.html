@@ -38,7 +38,7 @@
 <article>
 
 	<section>
-		<label>城市名称（拼音）
+		<label>城市名称（拼音）<a href="javascript:;" title="必须使用拼音，否则无法正确抓取">(?)</a>：
 			<select id="cityS">
 				<option value="" >请选择或自己输入</option>
 				<option value="beijing" >北京</option>
@@ -51,7 +51,7 @@
 	</section>
 
 	<section>
-		<label>活动类型
+		<label>活动类型：
 			<select id="type">
 				<option value="all" >所有类型</option>
 				<option value="music" >音乐/演出</option>
@@ -69,13 +69,13 @@
 	</section>
 
 	<section>
-		<label>活动时间长度
+	<label>活动时间长度<a href="#" title="建议选择「活动时间长度」在1天或者几天以内以内的，这样能够过滤掉大部分长期活动。比如「2012陈奕迅南京演唱会」，这种跨度极长的豆瓣活动更类似于宣传广告，应该避免在 Google 日历中显示。">(?)</a>：
 			<select id="length">
 				<option value="all" >任意</option>
 				<option value="3" >3小时之内</option>
 				<option value="6" >6小时之内</option>
 				<option value="12" >半天之内</option>
-				<option value="24" >1天之内</option>
+				<option value="24" checked="checked">1天之内</option>
 				<option value="48" >2天之内</option>
 				<option value="72" >3天之内</option>
 				<option value="168" >1周之内</option>
@@ -90,7 +90,11 @@
 		</a>
 	</section>
 
-</article>
+	<!-- JiaThis Button BEGIN -->
+	<script type="text/javascript">var jiathis_config = {data_track_clickback:true};</script>
+	<script type="text/javascript" src="http://v2.jiathis.com/code/jiathis_r.js?move=0&amp;uid=1604940" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
 
+</article>
 
 ## vim: set ft=mako foldmethod=indent:
