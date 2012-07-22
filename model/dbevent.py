@@ -8,14 +8,13 @@ from BeautifulSoup import BeautifulStoneSoup
 from icalendar import Calendar, Event, UTC
 import iso8601
 from google.appengine.ext import db
-from google.appengine.runtime import DeadlineExceededError
 from google.appengine.runtime.apiproxy_errors import OverQuotaError
 
-from util.utc import get_utc_datetime
-
 from config import config
-from util.doubanapi import fetchEvent
 from model.syncqueue import SyncQueue
+from util.utc import get_utc_datetime
+from util.doubanapi import fetchEvent
+from util.error import GetDoubanDataError
 
 class Dbevent(db.Model):
     """豆瓣同城事件数据模型"""
@@ -110,8 +109,8 @@ class Dbevent(db.Model):
                 xml = fetchEvent(location_id,
                                  max=fetch_page_count,
                                  start=start)
-            except DeadlineExceededError, e1:
-                logging.error(u'获取数据超时了')
+            except GetDoubanDataError, e1:
+                logging.error(u'获取数据超时了,先存一些')
                 break
             except OverQuotaError, e2:
                 logging.error(u'url fetch 中断，限额了')

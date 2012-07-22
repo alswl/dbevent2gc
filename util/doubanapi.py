@@ -6,6 +6,8 @@ import logging
 from google.appengine.api import urlfetch
 from BeautifulSoup import BeautifulStoneSoup
 
+from util.error import GetDoubanDataError
+
 apikey = '0a4b03a80958ff351ee10af81c0afd9f'
 
 def fetchEvent(location, category='all', max=50, start=0):
@@ -17,11 +19,14 @@ def fetchEvent(location, category='all', max=50, start=0):
                                                                 max,
                                                                 apikey)
     logging.info('fetch events from douban url: %s' %url)
-    result = urlfetch.fetch(url)
+    try:
+        result = urlfetch.fetch(url)
+    except urlfetch.DownloadError, e:
+        raise GetDoubanDataError
     if result.status_code == 200:
         return result.content
     else:
-        raise Exception('get events from douban.com failed')
+        raise GetDoubanDataError
 
 def getXmlCursor(xml):
     """解析xml，获取当前查询的起始位置，每页数量，总共数量"""
