@@ -62,7 +62,8 @@ CHANGE LOG
 * 2012-02-09 去掉数据库，单纯使用Memcache
 * 2012-02-22 重新加入数据库（支持历史回滚一个月数据查询）
 * 2012-04-30 添加分享按钮，添加帮助信息，v 0.2.2
+* 2017-03-15 Support Google Cloud Platform, with Python2.7
 
-dbevent2gc by http://log4d.com[alswl]
+dbevent2gc by http://alswl.com[alswl]
 
 // vim: set ft=asciidoc:
