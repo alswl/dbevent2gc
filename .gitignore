@@ -26,6 +26,18 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
-#myself
+
+## Vim ##
+
+*.swp
+*.swo
+*.un~
+Session.vim
+.netrwhist
+*~
+
+
+# Projects
 tags
 README.html
+
