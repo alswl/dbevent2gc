@@ -1,10 +1,7 @@
-application: dbevent2gc
-version: dev
-runtime: python
-api_version: 1
+runtime: python27
+threadsafe: false
 
 builtins:
-- datastore_admin: on
 - appstats: on
 
 handlers:
