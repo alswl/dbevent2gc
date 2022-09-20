@@ -1,4 +1,4 @@
-mako==0.5
+mako==1.2.2
 icalendar==2.2
 web.py==0.36
 beautifulsoup==3.2.0
